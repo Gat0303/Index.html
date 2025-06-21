@@ -13,7 +13,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  // Tu configuración de Firebase (reemplaza con tus datos)
   const firebaseConfig = {
     apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
     authDomain: "etiangue.firebaseapp.com",
@@ -24,30 +23,27 @@
     appId: "1:752321436396:web:19c24ee67cee9b018423c9"
   };
 
-  // Inicializar Firebase
   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
-auth.getRedirectResult()
-  .then((result) => {
-    if (result.user) {
-      const user = result.user;
-      const userData = {
-        email: user.email,
-        photoUrl: user.photoURL,
-        displayName: user.displayName,
-        uid: user.uid
-      };
-      window.location = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(JSON.stringify(userData)) + ";end";
-    }
-  })
-  .catch((error) => {
-    alert("Error al recuperar datos: " + error.message);
-  });
+
   document.getElementById('loginBtn').addEventListener('click', function() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider)
-  
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        const userData = {
+          email: user.email,
+          photoUrl: user.photoURL,
+          displayName: user.displayName,
+          uid: user.uid
+        };
+        // Redirigir a la app usando intent
+        window.location = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(JSON.stringify(userData)) + ";end";
+      })
+      .catch((error) => {
+        alert("Error al iniciar sesión: " + error.message);
+      });
   });
 </script>
 
