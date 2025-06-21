@@ -8,11 +8,13 @@
 
 <button id="loginBtn">Iniciar sesión con Google</button>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+  // Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
     authDomain: "etiangue.firebaseapp.com",
@@ -26,9 +28,11 @@
   firebase.initializeApp(firebaseConfig);
 
   const auth = firebase.auth();
+  const db = firebase.database();
 
-  document.getElementById('loginBtn').addEventListener('click', function() {
+  document.getElementById('loginBtn').addEventListener('click', function () {
     const provider = new firebase.auth.GoogleAuthProvider();
+
     auth.signInWithPopup(provider)
       .then((result) => {
         const user = result.user;
@@ -38,9 +42,20 @@
           displayName: user.displayName,
           uid: user.uid
         };
-        // Redirigir a la app usando intent
-        window.location.href = "https://gat0303.github.io/redirect.html?data=" + encodeURIComponent(JSON.stringify(userData));
-      
+
+        // 1. Guardar usuario en Firebase Realtime Database
+        db.ref("usuarios/" + user.uid).set(userData)
+          .then(() => {
+            console.log("Usuario guardado exitosamente.");
+
+            // 2. Redirigir a la app pasando los datos como parámetro en la URL
+            const dataParam = encodeURIComponent(JSON.stringify(userData));
+            window.location.href = "https://gat0303.github.io/redirect.html?data=" + dataParam;
+          })
+          .catch((error) => {
+            alert("Error al guardar en Firebase: " + error.message);
+          });
+
       })
       .catch((error) => {
         alert("Error al iniciar sesión: " + error.message);
