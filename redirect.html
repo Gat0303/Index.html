@@ -22,23 +22,19 @@
   <button id="volverBtn">Volver a la app</button>
 
   <script>
-    // Obtener el parámetro "data" de la URL
     const params = new URLSearchParams(window.location.search);
     const data = params.get("data");
 
     function redirigir() {
       if (data) {
-        const intentUrl = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(data) + ";end";
-        window.location.href = intentUrl;
+        const url = "miapp://callback?data=" + encodeURIComponent(data);
+        window.location.href = url;
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
     }
 
-    // Redirige automáticamente después de 2 segundos
     setTimeout(redirigir, 2000);
-
-    // También redirige si el usuario presiona el botón
     document.getElementById("volverBtn").addEventListener("click", redirigir);
   </script>
 
