@@ -29,7 +29,7 @@
     function redirigir() {
       if (data) {
         const intentUrl = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(data) + ";end";
-        window.location.href = "intentUrl;
+        window.location.href = intentUrl;
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
