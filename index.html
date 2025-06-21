@@ -39,7 +39,8 @@
           uid: user.uid
         };
         // Redirigir a la app usando intent
-        window.location = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(JSON.stringify(userData)) + ";end";
+        window.location.href = "https://gat0303.github.io/redirect.html?data=" + encodeURIComponent(JSON.stringify(userData));
+      
       })
       .catch((error) => {
         alert("Error al iniciar sesión: " + error.message);
