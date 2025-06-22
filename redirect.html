@@ -27,9 +27,9 @@
 
     function redirigir() {
       if (data) {
-        const url = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=...;end
-
-        window.location.href = url;
+        const url = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(JSON.stringify(userData)) + ";end";
+     
+        window.location.href = intentUrl;
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
