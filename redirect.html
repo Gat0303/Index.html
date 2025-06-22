@@ -17,8 +17,7 @@
 </head>
 <body>
 
-  <h2>Redirigiendo a la aplicación...</h2>
-  <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
+  <h2>Presiona el botón para volver a la app:</h2>
   <button id="volverBtn">Volver a la app</button>
 
   <script>
@@ -30,14 +29,11 @@
         const intentUrl = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(data) + ";end";
         window.location.href = intentUrl;
       } else {
-        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
+        alert("No se recibió ningún dato.");
       }
     }
 
-    // Redirige automáticamente después de 2 segundos
-    setTimeout(redirigir, 2000);
-
-    // También redirige si el usuario presiona el botón
+    // Solo redirige cuando el usuario hace clic
     document.getElementById("volverBtn").addEventListener("click", redirigir);
   </script>
 
