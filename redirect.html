@@ -21,20 +21,28 @@
   <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
   <button id="volverBtn">Volver a la app</button>
 
+  <!-- Enlace invisible para activarlo con JS -->
+  <a id="intentLink" style="display:none"></a>
+
   <script>
     const params = new URLSearchParams(window.location.search);
     const data = params.get("data");
 
     function redirigir() {
       if (data) {
-        const url = "intent://callback#Intent;scheme=miapp;S.data=" + encodeURIComponent(data) + ";end";
-        window.location.href = url;
+        const intentUrl = "intent://callback#Intent;scheme=miapp;S.data=" + encodeURIComponent(data) + ";end";
+        const link = document.getElementById("intentLink");
+        link.href = intentUrl;
+        link.click(); // simula el clic en el enlace
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
     }
 
+    // Redirige automáticamente después de 2 segundos
     setTimeout(redirigir, 2000);
+
+    // También redirige si el usuario presiona el botón
     document.getElementById("volverBtn").addEventListener("click", redirigir);
   </script>
 
