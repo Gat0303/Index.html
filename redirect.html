@@ -30,7 +30,7 @@
 
     function redirigir() {
       if (data) {
-        const intentUrl = "intent://callback#Intent;scheme=miapp;S.data=" + encodeURIComponent(data) + ";end";
+        const intentUrl = "https://miapp.callback/?data=" + encodeURIComponent(data);
         const link = document.getElementById("intentLink");
         link.href = intentUrl;
         link.click(); // simula el clic en el enlace
