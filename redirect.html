@@ -27,8 +27,8 @@
 
     function redirigir() {
       if (data) {
-        const url = "miapp://callback?data=" + encodeURIComponent(data);
-        window.location.href = url;
+        // Este cambio de URL lo detecta el WebViewer en App Inventor
+        window.location.href = "https://gat0303.github.io/callback?data=" + encodeURIComponent(data);
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
@@ -43,3 +43,4 @@
 
 </body>
 </html>
+
