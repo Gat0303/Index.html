@@ -30,14 +30,14 @@
         const intentUrl = "intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=" + encodeURIComponent(data) + ";end";
         window.location.href = intentUrl;
       } else {
-        alert("No se recibió ningún dato para redirigir.");
+        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
     }
 
     // Redirige automáticamente después de 2 segundos
     setTimeout(redirigir, 2000);
 
-    // O si presiona el botón
+    // También redirige si el usuario presiona el botón
     document.getElementById("volverBtn").addEventListener("click", redirigir);
   </script>
 
