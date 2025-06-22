@@ -1,50 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Redirigiendo a la app...</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      text-align: center;
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const data = params.get("data");
+
+  function redirigir() {
+    if (data) {
+      const url = "https://miapp.callback/?data=" + encodeURIComponent(data);
+      window.location.href = url;
+    } else {
+      document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-  </style>
-</head>
-<body>
+  }
 
-  <h2>Redirigiendo a la aplicación...</h2>
-  <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
-  <button id="volverBtn">Volver a la app</button>
-
-  <!-- Enlace invisible para activarlo con JS -->
-  <a id="intentLink" style="display:none"></a>
-
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const data = params.get("data");
-
-    function redirigir() {
-      if (data) {
-        const intentUrl = "https://miapp.callback/?data=" + encodeURIComponent(data);
-        const link = document.getElementById("intentLink");
-        link.href = intentUrl;
-        link.click(); // simula el clic en el enlace
-      } else {
-        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
-      }
-    }
-
-    // Redirige automáticamente después de 2 segundos
-    setTimeout(redirigir, 2000);
-
-    // También redirige si el usuario presiona el botón
-    document.getElementById("volverBtn").addEventListener("click", redirigir);
-  </script>
-
-</body>
-</html>
+  setTimeout(redirigir, 2000);
+  document.getElementById("volverBtn").addEventListener("click", redirigir);
+</script>
