@@ -17,7 +17,8 @@
 </head>
 <body>
 
-  <h2>Presiona el botón para volver a la app:</h2>
+  <h2>Redirigiendo a la aplicación...</h2>
+  <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
   <button id="volverBtn">Volver a la app</button>
 
   <script>
@@ -26,18 +27,19 @@
 
     function redirigir() {
       if (data) {
-        const url = "intent://callback#Intent;scheme=miapp;S.data=" + encodeURIComponent(data) + ";end";
-
+        const url = "miapp://callback?data=" + encodeURIComponent(data);
         window.location.href = url;
       } else {
-        alert("No se recibió ningún dato.");
+        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
     }
 
-    // Solo redirige cuando el usuario hace clic
+    // Redirige automáticamente después de 2 segundos
+    setTimeout(redirigir, 2000);
+
+    // También redirige si el usuario presiona el botón
     document.getElementById("volverBtn").addEventListener("click", redirigir);
   </script>
 
 </body>
 </html>
-
