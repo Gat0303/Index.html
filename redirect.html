@@ -1,16 +1,43 @@
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const data = params.get("data");
-
-  function redirigir() {
-    if (data) {
-      const url = "https://miapp.callback/?data=" + encodeURIComponent(data);
-      window.location.href = url;
-    } else {
-      document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirigiendo a la app...</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      text-align: center;
     }
-  }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
 
-  setTimeout(redirigir, 2000);
-  document.getElementById("volverBtn").addEventListener("click", redirigir);
-</script>
+  <h2>Redirigiendo a la aplicación...</h2>
+  <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
+  <button id="volverBtn">Volver a la app</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get("data");
+
+    function redirigir() {
+      if (data) {
+        const url = intent://callback#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.trabajo_2;S.data=...;end
+
+        window.location.href = url;
+      } else {
+        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
+      }
+    }
+
+    setTimeout(redirigir, 2000);
+    document.getElementById("volverBtn").addEventListener("click", redirigir);
+  </script>
+
+</body>
+</html>
