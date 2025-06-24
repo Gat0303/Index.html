@@ -20,14 +20,13 @@
 
     function volverAApp() {
       if (data) {
-        // Cambiar la URL a la misma para activar evento en WebViewer (aunque no cambia la página)
-        window.location.href = url;
+        const miUrl = "miapp://callback?data=" + encodeURIComponent(data);
+        window.location.href = miUrl;
       } else {
         document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
       }
     }
 
-    // Redirigir automáticamente en 2 seg
     setTimeout(volverAApp, 2000);
     document.getElementById("volverBtn").addEventListener("click", volverAApp);
   </script>
