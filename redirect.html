@@ -4,8 +4,15 @@
   <meta charset="utf-8" />
   <title>Redirigiendo a la app...</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2em; text-align: center; }
-    button { padding: 10px 20px; font-size: 16px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -20,10 +27,10 @@
 
     function volverAApp() {
       if (data) {
-        const miUrl = "miapp://callback?data=" + encodeURIComponent(data);
-        window.location.href = miUrl;
+        const customURL = "miapp://callback?data=" + encodeURIComponent(data);
+        window.location.href = customURL;
       } else {
-        document.body.innerHTML = "<h3>Error: no se recibió ningún dato.</h3>";
+        alert("No se recibió ningún dato.");
       }
     }
 
