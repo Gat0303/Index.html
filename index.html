@@ -3,65 +3,81 @@
 <head>
   <meta charset="utf-8" />
   <title>Login Google Firebase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+
+    #loginBtn {
+      font-size: 24px;
+      padding: 20px 40px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #loginBtn:hover {
+      background-color: #3367d6;
+    }
+  </style>
 </head>
 <body>
 
-<button id="loginBtn">Iniciar sesión con Google</button>
+  <h2>Iniciar sesión con Google</h2>
+  <button id="loginBtn">Iniciar sesión</button>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<script>
-  // Configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
-    authDomain: "etiangue.firebaseapp.com",
-    databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
-    projectId: "etiangue",
-    storageBucket: "etiangue.appspot.com",
-    messagingSenderId: "752321436396",
-    appId: "1:752321436396:web:19c24ee67cee9b018423c9"
-  };
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
+      authDomain: "etiangue.firebaseapp.com",
+      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
+      projectId: "etiangue",
+      storageBucket: "etiangue.appspot.com",
+      messagingSenderId: "752321436396",
+      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
+    };
 
-  firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
 
-  document.getElementById('loginBtn').addEventListener('click', function () {
-    const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            photoUrl: user.photoURL,
+            displayName: user.displayName
+          };
 
-    auth.signInWithPopup(provider)
-      .then((result) => {
-        const user = result.user;
-        const userData = {
-          email: user.email,
-          photoUrl: user.photoURL,
-          displayName: user.displayName,
-          uid: user.uid
-        };
+          // Guardar en Firebase
+          db.ref("usuarios/" + user.uid).set(userData)
+            .then(() => {
+              alert("Inicio de sesión exitoso. Vuelve a la app para continuar.");
+            })
+            .catch((error) => {
+              alert("Error al guardar en Firebase: " + error.message);
+            });
 
-        // 1. Guardar usuario en Firebase Realtime Database
-        db.ref("usuarios/" + user.uid).set(userData)
-          .then(() => {
-            console.log("Usuario guardado exitosamente.");
-
-            // 2. Redirigir a la app pasando los datos como parámetro en la URL
-            const dataParam = encodeURIComponent(JSON.stringify(userData));
-            window.location.href = window.location.href = "redirect.html?data=" + dataParam;
-          })
-          .catch((error) => {
-            alert("Error al guardar en Firebase: " + error.message);
-          });
-
-      })
-      .catch((error) => {
-        alert("Error al iniciar sesión: " + error.message);
-      });
-  });
-</script>
+        })
+        .catch((error) => {
+          alert("Error al iniciar sesión: " + error.message);
+        });
+    });
+  </script>
 
 </body>
 </html>
