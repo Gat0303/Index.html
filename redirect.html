@@ -28,13 +28,24 @@
     function volverAApp() {
       if (data) {
         const customURL = "miapp://callback?data=" + encodeURIComponent(data);
-        window.location.href = customURL;
+
+        // Intentar abrir con iframe oculto (más confiable en móviles)
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = customURL;
+        document.body.appendChild(iframe);
+
+        // Fallback: redirección directa si el iframe falla
+        setTimeout(() => {
+          window.location.href = customURL;
+        }, 500);
       } else {
         alert("No se recibió ningún dato.");
       }
     }
 
-    setTimeout(volverAApp, 2000);
+    // Redirigir automáticamente y también con el botón
+    setTimeout(volverAApp, 1000);
     document.getElementById("volverBtn").addEventListener("click", volverAApp);
   </script>
 
