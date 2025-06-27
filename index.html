@@ -66,7 +66,9 @@
           // Guardar en Firebase
           db.ref("usuarios/" + user.uid).set(userData)
             .then(() => {
-              alert("Inicio de sesión exitoso. Vuelve a la app para continuar.");
+              // Redirigir a la app con los datos codificados
+              const dataParam = encodeURIComponent(JSON.stringify(userData));
+              window.location.href = "miapp://callback?data=" + dataParam;
             })
             .catch((error) => {
               alert("Error al guardar en Firebase: " + error.message);
