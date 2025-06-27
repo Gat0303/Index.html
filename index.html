@@ -50,7 +50,7 @@
 
             // 2. Redirigir a la app pasando los datos como parámetro en la URL
             const dataParam = encodeURIComponent(JSON.stringify(userData));
-            window.location.href = "https://gat0303.github.io/Index.html/redirect.html?data=" + dataParam;
+            window.location.href = window.location.href = "redirect.html?data=" + dataParam;
           })
           .catch((error) => {
             alert("Error al guardar en Firebase: " + error.message);
