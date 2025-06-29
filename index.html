@@ -66,9 +66,8 @@
           // Guardar en Firebase
           db.ref("usuarios/" + user.uid).set(userData)
             .then(() => {
-              // Redirigir a la página intermedia
-              const dataParam = encodeURIComponent(JSON.stringify(userData));
-              window.location.href = "https://gat0303.github.io/Index.html/redirect.html?data=" + dataParam;
+              // Redirigir a la página de confirmación (ya no hace redirección a la app)
+              window.location.href = "https://gat0303.github.io/Index.html/redirect.html";
             })
             .catch((error) => {
               alert("Error al guardar en Firebase: " + error.message);
