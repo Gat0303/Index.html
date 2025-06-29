@@ -6,12 +6,23 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 2em;
       text-align: center;
+      padding: 3em;
     }
+
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      font-size: 24px;
+      padding: 18px 40px;
+      background-color: #34a853;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 2em;
+    }
+
+    button:hover {
+      background-color: #2c8c47;
     }
   </style>
 </head>
@@ -28,24 +39,13 @@
     function volverAApp() {
       if (data) {
         const customURL = "miapp://callback?data=" + encodeURIComponent(data);
-
-        // Intentar abrir con iframe oculto (más confiable en móviles)
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = customURL;
-        document.body.appendChild(iframe);
-
-        // Fallback: redirección directa si el iframe falla
-        setTimeout(() => {
-          window.location.href = customURL;
-        }, 500);
+        window.location.href = customURL;
       } else {
         alert("No se recibió ningún dato.");
       }
     }
 
-    // Redirigir automáticamente y también con el botón
-    setTimeout(volverAApp, 1000);
+    setTimeout(volverAApp, 2000);
     document.getElementById("volverBtn").addEventListener("click", volverAApp);
   </script>
 
