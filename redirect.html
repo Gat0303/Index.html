@@ -2,35 +2,52 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login exitoso</title>
+  <title>Redirigiendo a la app...</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      padding: 2em;
       text-align: center;
-      padding: 3em;
     }
-
     button {
-      font-size: 24px;
-      padding: 18px 40px;
+      padding: 10px 20px;
+      font-size: 18px;
       background-color: #34a853;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
-      margin-top: 2em;
     }
-
     button:hover {
-      background-color: #2c8c47;
+      background-color: #2c8f47;
     }
   </style>
 </head>
 <body>
 
-  <h2>✅ Login exitoso</h2>
-  <p>Tus datos han sido guardados correctamente.<br>Puedes volver a la app manualmente.</p>
-  <button onclick="alert('Abre tu app desde el menú o la multitarea 📱')">Volver a la app</button>
+  <h2>Redirigiendo a la aplicación...</h2>
+  <p>Si no ocurre nada en unos segundos, presiona el botón:</p>
+  <button id="volverBtn">Volver a la app</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get("data");
+
+    function volverAApp() {
+      if (data) {
+        const customURL = "miapp://callback?data=" + encodeURIComponent(data);
+        window.location.href = customURL;
+      } else {
+        alert("No se recibió ningún dato.");
+      }
+    }
+
+    // Redirigir automáticamente después de 2 segundos
+    setTimeout(volverAApp, 2000);
+
+    // Opción manual
+    document.getElementById("volverBtn").addEventListener("click", volverAApp);
+  </script>
 
 </body>
 </html>
