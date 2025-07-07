@@ -30,24 +30,22 @@
   <button id="volverBtn">Volver a la app</button>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const data = params.get("data");
+  const params = new URLSearchParams(window.location.search);
+  const data = params.get("data");
 
-    function volverAApp() {
-      if (data) {
-        const customURL = "appinventor.ai_gabrielmsanchezl09.trabajo_2://callback?data=" + encodeURIComponent(data);
-        window.location.href = customURL;
-      } else {
-        alert("No se recibió ningún dato.");
-      }
+  function volverAApp() {
+    if (data) {
+      const customURL = "appinventor.ai_gabrielmsanchezl09.trabajo_2://callback?data=" + encodeURIComponent(data);
+      window.location.replace(customURL);
+      setTimeout(() => window.close(), 1000);
+    } else {
+      alert("No se recibió ningún dato.");
     }
+  }
 
-    // Redirigir automáticamente después de 2 segundos
-    setTimeout(volverAApp, 2000);
-
-    // Opción manual
-    document.getElementById("volverBtn").addEventListener("click", volverAApp);
-  </script>
+  setTimeout(volverAApp, 2000);
+  document.getElementById("volverBtn").addEventListener("click", volverAApp);
+</script>
 
 </body>
 </html>
