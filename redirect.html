@@ -36,7 +36,7 @@
   function volverAApp() {
     if (data) {
       const customURL = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + encodeURIComponent(data);
-      window.location.replace(customURL);
+      window.location.href = customURL;
       setTimeout(() => window.close(), 1000);
     } else {
       alert("No se recibió ningún dato.");
