@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Simulado</title>
+  <meta charset="UTF-8" />
+  <script>
+    function enviarDatos() {
+      // Datos de ejemplo que enviarás a la app
+      var userData = {
+        uid: "abc123",
+        email: "usuario@example.com",
+        name: "Gabriel Sánchez"
+      };
+      
+      // Enviar mensaje a App Inventor
+      window.AppInventor.setWebViewString(JSON.stringify(userData));
+    }
+  </script>
+</head>
+<body>
+  <h2>Login Simulado</h2>
+  <button onclick="enviarDatos()">Enviar datos a la app</button>
+</body>
+</html>
