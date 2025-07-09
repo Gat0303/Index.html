@@ -2,14 +2,13 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase</title>
+  <title>Login Google Firebase (Redirect)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 2em;
     }
-
     #loginBtn {
       font-size: 24px;
       padding: 20px 40px;
@@ -19,14 +18,12 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     #loginBtn:hover {
       background-color: #3367d6;
     }
   </style>
 </head>
 <body>
-
   <h2>Iniciar sesión con Google</h2>
   <button id="loginBtn">Iniciar sesión</button>
 
@@ -35,12 +32,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
- <script>
-  document.getElementById('loginBtn').addEventListener('click', function () {
-    const provider = new firebase.auth.GoogleAuthProvider();
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
+      authDomain: "etiangue.firebaseapp.com",
+      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
+      projectId: "etiangue",
+      storageBucket: "etiangue.appspot.com",
+      messagingSenderId: "752321436396",
+      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
+    };
 
-    auth.signInWithPopup(provider)
-      .then((result) => {
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Al cargar la página, revisar si hay resultado de redirección
+    auth.getRedirectResult().then((result) => {
+      if (result.user) {
         const user = result.user;
         const userData = {
           uid: user.uid,
@@ -48,24 +57,29 @@
           photoUrl: user.photoURL,
           displayName: user.displayName
         };
-
         // Guardar en Firebase
         db.ref("usuarios/" + user.uid).set(userData)
           .then(() => {
-            // Enviar datos a App Inventor sin redireccionar
-            window.AppInventor.setWebViewString(JSON.stringify(userData));
+            // Enviar datos a App Inventor
+            if (window.AppInventor && window.AppInventor.setWebViewString) {
+              window.AppInventor.setWebViewString(JSON.stringify(userData));
+            } else {
+              alert("AppInventor no detectado.");
+            }
           })
           .catch((error) => {
             alert("Error al guardar en Firebase: " + error.message);
           });
+      }
+    }).catch((error) => {
+      alert("Error al obtener resultado de redirect: " + error.message);
+    });
 
-      })
-      .catch((error) => {
-        alert("Error al iniciar sesión: " + error.message);
-      });
-  });
-</script>
-
-
+    // Botón para iniciar login con redirect
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithRedirect(provider);
+    });
+  </script>
 </body>
 </html>
