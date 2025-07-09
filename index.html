@@ -35,51 +35,37 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
-      authDomain: "etiangue.firebaseapp.com",
-      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
-      projectId: "etiangue",
-      storageBucket: "etiangue.appspot.com",
-      messagingSenderId: "752321436396",
-      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
-    };
+ <script>
+  document.getElementById('loginBtn').addEventListener('click', function () {
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          photoUrl: user.photoURL,
+          displayName: user.displayName
+        };
 
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
+        // Guardar en Firebase
+        db.ref("usuarios/" + user.uid).set(userData)
+          .then(() => {
+            // Enviar datos a App Inventor sin redireccionar
+            window.AppInventor.setWebViewString(JSON.stringify(userData));
+          })
+          .catch((error) => {
+            alert("Error al guardar en Firebase: " + error.message);
+          });
 
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          const user = result.user;
-          const userData = {
-            uid: user.uid,
-            email: user.email,
-            photoUrl: user.photoURL,
-            displayName: user.displayName
-          };
+      })
+      .catch((error) => {
+        alert("Error al iniciar sesión: " + error.message);
+      });
+  });
+</script>
 
-          // Guardar en Firebase
-          db.ref("usuarios/" + user.uid).set(userData)
-            .then(() => {
-              // Redirigir a redirect.html con los datos codificados
-              const dataParam = encodeURIComponent(JSON.stringify(userData));
-              window.location.href = "redirect.html?data=" + dataParam;
-            })
-            .catch((error) => {
-              alert("Error al guardar en Firebase: " + error.message);
-            });
-
-        })
-        .catch((error) => {
-          alert("Error al iniciar sesión: " + error.message);
-        });
-    });
-  </script>
 
 </body>
 </html>
