@@ -1,24 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login Simulado</title>
-  <meta charset="UTF-8" />
-  <script>
-    function enviarDatos() {
-      // Datos de ejemplo que enviarás a la app
-      var userData = {
-        uid: "abc123",
-        email: "usuario@example.com",
-        name: "Gabriel Sánchez"
-      };
-      
-      // Enviar mensaje a App Inventor
-      window.AppInventor.setWebViewString(JSON.stringify(userData));
+  <meta charset="utf-8" />
+  <title>Iniciar sesión</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 2em;
     }
-  </script>
+
+    #loginBtn {
+      font-size: 24px;
+      padding: 20px 40px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #loginBtn:hover {
+      background-color: #3367d6;
+    }
+  </style>
 </head>
 <body>
-  <h2>Login Simulado</h2>
-  <button onclick="enviarDatos()">Enviar datos a la app</button>
+
+  <h2>Iniciar sesión con Google</h2>
+  <button id="loginBtn">Iniciar sesión</button>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
+      authDomain: "etiangue.firebaseapp.com",
+      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
+      projectId: "etiangue",
+      storageBucket: "etiangue.appspot.com",
+      messagingSenderId: "752321436396",
+      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Iniciar sesión
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithRedirect(provider);
+    });
+
+    // Verificar si volvió del login
+    window.onload = function () {
+      setTimeout(() => {
+        auth.getRedirectResult().then((result) => {
+          if (result.user) {
+            const user = result.user;
+            const userData = {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              photoUrl: user.photoURL
+            };
+
+            // Guardar datos del usuario en la base
+            db.ref("usuarios/" + user.uid).set(userData)
+              .then(() => {
+                // Mostrar mensaje para volver a la app manualmente
+                document.body.innerHTML = `
+                  <h2>¡Inicio de sesión exitoso!</h2>
+                  <p>Ahora podés regresar a la app para continuar.</p>
+                `;
+              })
+              .catch((error) => {
+                alert("Error al guardar usuario: " + error.message);
+              });
+
+          }
+        }).catch((error) => {
+          alert("Error en login: " + error.message);
+        });
+      }, 1000); // 1 segundo de retardo para asegurar cookies cargadas
+    };
+  </script>
 </body>
 </html>
