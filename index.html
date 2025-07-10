@@ -2,13 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase (Redirect con retardo)</title>
+  <title>Login Google Firebase (guardar UID por email)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 2em;
     }
+
     #loginBtn {
       font-size: 24px;
       padding: 20px 40px;
@@ -18,12 +19,14 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     #loginBtn:hover {
       background-color: #3367d6;
     }
   </style>
 </head>
 <body>
+
   <h2>Iniciar sesión con Google</h2>
   <button id="loginBtn">Iniciar sesión</button>
 
@@ -47,45 +50,35 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Botón para iniciar login con redirect
-    document.getElementById('loginBtn').addEventListener('click', function () {
+    document.getElementById('loginBtn').addEventListener('click', async function () {
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithRedirect(provider);
-    });
 
-    // Al cargar la página, revisar si hay resultado de redirección con retardo
-    window.onload = function() {
-      setTimeout(() => {
-        auth.getRedirectResult()
-          .then((result) => {
-            if (result.user) {
-              const user = result.user;
-              const userData = {
-                uid: user.uid,
-                email: user.email,
-                photoUrl: user.photoURL,
-                displayName: user.displayName
-              };
-              // Guardar en Firebase
-              db.ref("usuarios/" + user.uid).set(userData)
-                .then(() => {
-                  // Enviar datos a App Inventor
-                  if (window.AppInventor && window.AppInventor.setWebViewString) {
-                    window.AppInventor.setWebViewString(JSON.stringify(userData));
-                  } else {
-                    alert("AppInventor no detectado.");
-                  }
-                })
-                .catch((error) => {
-                  alert("Error al guardar en Firebase: " + error.message);
-                });
-            }
-          })
-          .catch((error) => {
-            alert("Error al obtener resultado de redirect: " + error.message);
-          });
-      }, 1000); // 1 segundo de retardo
-    };
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+
+        // Crear objeto con los datos del usuario
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoUrl: user.photoURL
+        };
+
+        // Guardar datos completos en "usuarios/uid"
+        await db.ref("usuarios/" + user.uid).set(userData);
+
+        // Guardar el UID en "emails_a_uid/email_formateado"
+        const emailKey = user.email.replace(/\./g, "_");
+        await db.ref("emails_a_uid/" + emailKey).set(user.uid);
+
+        alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
+
+      } catch (error) {
+        alert("Error al iniciar sesión: " + error.message);
+      }
+    });
   </script>
+
 </body>
 </html>
