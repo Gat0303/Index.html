@@ -65,16 +65,23 @@
           photoUrl: user.photoURL
         };
 
+        console.log("Datos del usuario a guardar:", userData);
+
         // Guardar datos completos en "usuarios/uid"
+        console.log("Guardando datos completos en usuarios/" + user.uid);
         await db.ref("usuarios/" + user.uid).set(userData);
+        console.log("Datos completos guardados correctamente.");
 
         // Guardar el UID en "emails_a_uid/email_formateado"
         const emailKey = user.email.replace(/\./g, "_");
+        console.log("Guardando UID en emails_a_uid/" + emailKey + ": " + user.uid);
         await db.ref("emails_a_uid/" + emailKey).set(user.uid);
+        console.log("UID guardado correctamente en emails_a_uid.");
 
         alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
 
       } catch (error) {
+        console.error("Error al iniciar sesión:", error);
         alert("Error al iniciar sesión: " + error.message);
       }
     });
