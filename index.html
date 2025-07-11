@@ -69,7 +69,7 @@
 
         // Guardar datos completos en "usuarios/uid"
         console.log("Guardando datos completos en usuarios/" + user.uid);
-        await db.ref("usuarios/" + user.uid).set(userData);
+        await db.ref("usuarios_google/" + user.uid).set(userData);
         console.log("Datos completos guardados correctamente.");
 
         // Guardar el UID en "emails_a_uid/email_formateado"
