@@ -2,90 +2,73 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase (guardar UID por email)</title>
+  <title>Login con Google (ID Token)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 2em;
     }
-
-    #loginBtn {
+    button {
       font-size: 24px;
-      padding: 20px 40px;
+      padding: 16px 32px;
       background-color: #4285f4;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
     }
-
-    #loginBtn:hover {
-      background-color: #3367d6;
+    textarea {
+      margin-top: 20px;
+      width: 90%;
+      height: 120px;
     }
   </style>
 </head>
 <body>
 
   <h2>Iniciar sesión con Google</h2>
-  <button id="loginBtn">Iniciar sesión</button>
+  <button onclick="loginGoogle()">Iniciar sesión</button>
 
-  <!-- Firebase SDKs -->
+  <h3>ID Token (copialo si volvés manualmente)</h3>
+  <textarea id="tokenBox" readonly></textarea>
+
+  <!-- SDKs Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
       authDomain: "etiangue.firebaseapp.com",
-      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
       projectId: "etiangue",
-      storageBucket: "etiangue.appspot.com",
-      messagingSenderId: "752321436396",
-      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
 
-    document.getElementById('loginBtn').addEventListener('click', async function () {
+    async function loginGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
 
       try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Crear objeto con los datos del usuario
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoUrl: user.photoURL
-        };
+        // Obtener el ID Token
+        const idToken = await user.getIdToken();
 
-        console.log("Datos del usuario a guardar:", userData);
+        // Mostrar el token
+        document.getElementById("tokenBox").value = idToken;
 
-        // Guardar datos completos en "usuarios/uid"
-        console.log("Guardando datos completos en usuarios/" + user.uid);
-        await db.ref("usuarios_google/" + user.uid).set(userData);
-        console.log("Datos completos guardados correctamente.");
+        // Si querés redirigir automáticamente a la app (opcional):
+        // window.location.href = "miapp://?idtoken=" + idToken;
 
-        // Guardar el UID en "emails_a_uid/email_formateado"
-        const emailKey = user.email.replace(/\./g, "_");
-        console.log("Guardando UID en emails_a_uid/" + emailKey + ": " + user.uid);
-        await db.ref("emails_a_uid/" + emailKey).set(user.uid);
-        console.log("UID guardado correctamente en emails_a_uid.");
-
-        alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
-
+        alert("Copiá el token, volvé a la app y pegalo para continuar.");
       } catch (error) {
         console.error("Error al iniciar sesión:", error);
         alert("Error al iniciar sesión: " + error.message);
       }
-    });
+    }
   </script>
-
 </body>
 </html>
