@@ -2,29 +2,41 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login completado</title>
+  <title>Código de seguridad</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 2em;
       text-align: center;
     }
+    .codigo {
+      font-size: 28px;
+      background-color: #f2f2f2;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <h2>¡Has iniciado sesión correctamente!</h2>
-  <p>Regresa a la aplicación para continuar.</p>
+  <h2>✅ Usuario ingresado con éxito</h2>
+  <p>Por motivos de verificación, se ha generado un <strong>código de seguridad</strong> único:</p>
 
-  <pre id="userData"></pre>
+  <div class="codigo" id="codigo">...</div>
+
+  <p>Copia este código y pégalo en la aplicación cuando se te solicite.</p>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const data = params.get("data");
-    if (data) {
-      document.getElementById("userData").innerText = decodeURIComponent(data);
+    const codigo = params.get("codigo");
+
+    if (codigo) {
+      document.getElementById("codigo").textContent = codigo;
     } else {
-      document.getElementById("userData").innerText = "No se recibió ningún dato.";
+      document.getElementById("codigo").textContent = "No se recibió ningún código.";
     }
   </script>
 
