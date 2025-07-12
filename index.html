@@ -2,31 +2,64 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase</title>
+  <title>Login con Google - Seguridad</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
       text-align: center;
-      padding: 2em;
+      padding: 3em;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
     }
     #loginBtn {
-      font-size: 24px;
-      padding: 20px 40px;
+      font-size: 20px;
+      padding: 15px 30px;
       background-color: #4285f4;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 20px;
     }
     #loginBtn:hover {
       background-color: #3367d6;
+    }
+    .codigo {
+      font-size: 30px;
+      color: #222;
+      background-color: #e8f0fe;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 20px 0;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    #mensajeFinal {
+      font-size: 18px;
+      color: green;
+      margin-top: 30px;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h2>Iniciar sesión con Google</h2>
-  <button id="loginBtn">Iniciar sesión</button>
+  <div class="card">
+    <h2>🔒 Verificación de seguridad</h2>
+    <p>Presiona el botón para iniciar sesión con tu cuenta Google.</p>
+    <button id="loginBtn">Iniciar sesión con Google</button>
+
+    <div id="resultado" style="margin-top: 30px;"></div>
+    <div id="mensajeFinal">✅ Ya puedes volver a la app</div>
+  </div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -48,50 +81,62 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
+    // Clic para iniciar sesión
     document.getElementById('loginBtn').addEventListener('click', function () {
       auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
     });
 
-  auth.getRedirectResult()
-  .then((result) => {
-    console.log("Resultado del redirect:", result);
-    if (result.user) {
-      console.log("Usuario detectado:", result.user);
+    // Cuando regresa del login
+    auth.getRedirectResult()
+      .then((result) => {
+        if (result.user) {
+          const user = result.user;
+          const userData = {
+            uid: user.uid + "__UIDTAG",
+            email: user.email,
+            photoUrl: user.photoURL,
+            displayName: user.displayName
+          };
 
-      const user = result.user;
-      const userData = {
-        uid: user.uid + "__UIDTAG",
-        email: user.email,
-        photoUrl: user.photoURL,
-        displayName: user.displayName
-      };
+          db.ref("Usuarios_google").once("value").then(snapshot => {
+            const usuarios = snapshot.val() || {};
+            const nuevoID = Object.keys(usuarios).length + 1;
 
-      db.ref("Usuarios_google").once("value").then(snapshot => {
-        const usuarios = snapshot.val() || {};
-        const nuevoID = Object.keys(usuarios).length + 1;
+            db.ref("Usuarios_google/" + nuevoID).set(userData)
+              .then(() => {
+                mostrarCodigo(nuevoID);
+              })
+              .catch((error) => {
+                mostrarError("❌ Error al guardar datos: " + error.message);
+              });
 
-        db.ref("Usuarios_google/" + nuevoID).set(userData)
-          .then(() => {
-            console.log("Datos guardados. Redirigiendo a redirect.html");
-            window.location.href = "redirect.html?codigo=" + nuevoID;
-          })
-          .catch((error) => {
-            alert("❌ Error al guardar datos: " + error.message);
+          }).catch((error) => {
+            mostrarError("❌ Error al leer usuarios: " + error.message);
           });
 
-      }).catch((error) => {
-        alert("❌ Error al leer usuarios: " + error.message);
+        } else {
+          console.log("⚠️ No se detectó usuario. ¿Ya hiciste login?");
+        }
+      })
+      .catch((error) => {
+        mostrarError("❌ Error en el login: " + error.message);
       });
 
-    } else {
-      console.log("⚠️ No se detectó usuario. ¿Ya hiciste login?");
+    function mostrarCodigo(codigo) {
+      const contenedor = document.getElementById("resultado");
+      contenedor.innerHTML = `
+        <p>🔐 Código de seguridad generado:</p>
+        <div class="codigo">${codigo}</div>
+        <p>Copia este código y pégalo en la app para continuar.</p>
+      `;
+      setTimeout(() => {
+        document.getElementById("mensajeFinal").style.display = "block";
+      }, 4000);
     }
-  })
-  .catch((error) => {
-    console.error("❌ Error post-redirect:", error.message);
-    alert("❌ Error en el login: " + error.message);
-  });
 
+    function mostrarError(mensaje) {
+      document.getElementById("resultado").innerHTML = `<p style="color: red;">${mensaje}</p>`;
+    }
   </script>
 
 </body>
