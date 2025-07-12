@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase (guardar UID por email)</title>
+  <title>Login Google Firebase (guardar solo UID)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,6 +36,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
+    // Configuración Firebase (reemplaza con la tuya)
     const firebaseConfig = {
       apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
       authDomain: "etiangue.firebaseapp.com",
@@ -46,6 +47,7 @@
       appId: "1:752321436396:web:19c24ee67cee9b018423c9"
     };
 
+    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
@@ -57,26 +59,10 @@
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Crear objeto con los datos del usuario
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoUrl: user.photoURL
-        };
+        // Guardar solo el UID en 'uid_unico'
+        await db.ref("uid_unico").set(user.uid);
 
-        console.log("Datos del usuario a guardar:", userData);
-
-        // Guardar datos completos en "usuarios/uid"
-        console.log("Guardando datos completos en usuarios/" + user.uid);
-        await db.ref("usuarios_google/" + user.uid).set(userData);
-        console.log("Datos completos guardados correctamente.");
-
-        // Guardar el UID en "emails_a_uid/email_formateado"
-        const emailKey = user.email.replace(/\./g, "_");
-        console.log("Guardando UID en emails_a_uid/" + emailKey + ": " + user.uid);
-        await db.ref("emails_a_uid/" + emailKey).set(user.uid);
-        console.log("UID guardado correctamente en emails_a_uid.");
+        console.log("UID guardado correctamente en uid_unico:", user.uid);
 
         alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
 
