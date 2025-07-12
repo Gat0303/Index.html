@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login con Google (ID Token)</title>
+  <title>Login con Google (guardar idToken en Firebase)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,17 +11,15 @@
     }
     button {
       font-size: 24px;
-      padding: 16px 32px;
+      padding: 20px 40px;
       background-color: #4285f4;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    textarea {
-      margin-top: 20px;
-      width: 90%;
-      height: 120px;
+    button:hover {
+      background-color: #3367d6;
     }
   </style>
 </head>
@@ -30,22 +28,25 @@
   <h2>Iniciar sesión con Google</h2>
   <button onclick="loginGoogle()">Iniciar sesión</button>
 
-  <h3>ID Token (copialo si volvés manualmente)</h3>
-  <textarea id="tokenBox" readonly></textarea>
-
-  <!-- SDKs Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
       authDomain: "etiangue.firebaseapp.com",
+      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
       projectId: "etiangue",
+      storageBucket: "etiangue.appspot.com",
+      messagingSenderId: "752321436396",
+      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database();
 
     async function loginGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -54,19 +55,20 @@
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Obtener el ID Token
+        // Obtener idToken del usuario
         const idToken = await user.getIdToken();
 
-        // Mostrar el token
-        document.getElementById("tokenBox").value = idToken;
+        // Guardar token en: tokens/<uid>
+        await db.ref("tokens/" + user.uid).set(idToken);
 
-        // Si querés redirigir automáticamente a la app (opcional):
-        // window.location.href = "miapp://?idtoken=" + idToken;
+        // Guardar también el UID actual en una ruta fija (para la app)
+        await db.ref("uid_unico").set(user.uid);
 
-        alert("Copiá el token, volvé a la app y pegalo para continuar.");
+        alert("Inicio de sesión exitoso. Ya podés volver a la app.");
+
       } catch (error) {
         console.error("Error al iniciar sesión:", error);
-        alert("Error al iniciar sesión: " + error.message);
+        alert("Error: " + error.message);
       }
     }
   </script>
