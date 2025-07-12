@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login con Google (guardar idToken en Firebase)</title>
+  <title>Login Google Firebase con redirección automática</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 2em;
     }
-    button {
+    #loginBtn {
       font-size: 24px;
       padding: 20px 40px;
       background-color: #4285f4;
@@ -18,7 +18,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    button:hover {
+    #loginBtn:hover {
       background-color: #3367d6;
     }
   </style>
@@ -26,7 +26,7 @@
 <body>
 
   <h2>Iniciar sesión con Google</h2>
-  <button onclick="loginGoogle()">Iniciar sesión</button>
+  <button id="loginBtn">Iniciar sesión</button>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -48,29 +48,30 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    async function loginGoogle() {
+    document.getElementById('loginBtn').addEventListener('click', async function () {
       const provider = new firebase.auth.GoogleAuthProvider();
 
       try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
-
-        // Obtener idToken del usuario
         const idToken = await user.getIdToken();
 
-        // Guardar token en: tokens/<uid>
+        // Guardar el idToken en Firebase bajo tokens/uid
         await db.ref("tokens/" + user.uid).set(idToken);
 
-        // Guardar también el UID actual en una ruta fija (para la app)
-        await db.ref("uid_unico").set(user.uid);
+        // Construir la URL de redirección con esquema personalizado
+        // Cambia 'miapp' por el esquema personalizado que tengas configurado
+        const redirectUrl = `miapp://login?idtoken=${encodeURIComponent(idToken)}`;
 
-        alert("Inicio de sesión exitoso. Ya podés volver a la app.");
+        // Redirigir automáticamente a la app
+        window.location.href = redirectUrl;
 
       } catch (error) {
         console.error("Error al iniciar sesión:", error);
-        alert("Error: " + error.message);
+        alert("Error al iniciar sesión: " + error.message);
       }
-    }
+    });
   </script>
+
 </body>
 </html>
