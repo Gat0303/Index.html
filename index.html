@@ -48,38 +48,38 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    const provider = new firebase.auth.GoogleAuthProvider();
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+    });
 
-    // Detectar si venimos de redirección
     auth.getRedirectResult()
       .then((result) => {
         if (result.user) {
           const user = result.user;
           const userData = {
-            uid: user.uid,
+            uid: user.uid + "__UIDTAG", // ← Añadimos diferenciador al uid
             email: user.email,
             photoUrl: user.photoURL,
             displayName: user.displayName
           };
 
-          db.ref("usuarios/" + user.uid).set(userData)
-            .then(() => {
-              const dataParam = encodeURIComponent(JSON.stringify(userData));
-              window.location.href = "redirect.html?data=" + dataParam;
-            })
-            .catch((error) => {
-              alert("Error al guardar en Firebase: " + error.message);
-            });
+          db.ref("Usuarios_google").once("value").then(snapshot => {
+            const usuarios = snapshot.val() || {};
+            const nuevoID = Object.keys(usuarios).length + 1;
+
+            db.ref("Usuarios_google/" + nuevoID).set(userData)
+              .then(() => {
+                window.location.href = "redirect.html?codigo=" + nuevoID;
+              })
+              .catch((error) => {
+                alert("Error al guardar en Firebase: " + error.message);
+              });
+          });
         }
       })
       .catch((error) => {
         console.error("Error post-redirect:", error.message);
       });
-
-    // Al hacer clic en el botón, iniciar login con redirección
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      auth.signInWithRedirect(provider);
-    });
   </script>
 
 </body>
