@@ -52,34 +52,46 @@
       auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
     });
 
-    auth.getRedirectResult()
-      .then((result) => {
-        if (result.user) {
-          const user = result.user;
-          const userData = {
-            uid: user.uid + "__UIDTAG", // ← Añadimos diferenciador al uid
-            email: user.email,
-            photoUrl: user.photoURL,
-            displayName: user.displayName
-          };
+  auth.getRedirectResult()
+  .then((result) => {
+    console.log("Resultado del redirect:", result);
+    if (result.user) {
+      console.log("Usuario detectado:", result.user);
 
-          db.ref("Usuarios_google").once("value").then(snapshot => {
-            const usuarios = snapshot.val() || {};
-            const nuevoID = Object.keys(usuarios).length + 1;
+      const user = result.user;
+      const userData = {
+        uid: user.uid + "__UIDTAG",
+        email: user.email,
+        photoUrl: user.photoURL,
+        displayName: user.displayName
+      };
 
-            db.ref("Usuarios_google/" + nuevoID).set(userData)
-              .then(() => {
-                window.location.href = "redirect.html?codigo=" + nuevoID;
-              })
-              .catch((error) => {
-                alert("Error al guardar en Firebase: " + error.message);
-              });
+      db.ref("Usuarios_google").once("value").then(snapshot => {
+        const usuarios = snapshot.val() || {};
+        const nuevoID = Object.keys(usuarios).length + 1;
+
+        db.ref("Usuarios_google/" + nuevoID).set(userData)
+          .then(() => {
+            console.log("Datos guardados. Redirigiendo a redirect.html");
+            window.location.href = "redirect.html?codigo=" + nuevoID;
+          })
+          .catch((error) => {
+            alert("❌ Error al guardar datos: " + error.message);
           });
-        }
-      })
-      .catch((error) => {
-        console.error("Error post-redirect:", error.message);
+
+      }).catch((error) => {
+        alert("❌ Error al leer usuarios: " + error.message);
       });
+
+    } else {
+      console.log("⚠️ No se detectó usuario. ¿Ya hiciste login?");
+    }
+  })
+  .catch((error) => {
+    console.error("❌ Error post-redirect:", error.message);
+    alert("❌ Error en el login: " + error.message);
+  });
+
   </script>
 
 </body>
