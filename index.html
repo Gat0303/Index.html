@@ -2,64 +2,33 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login con Google - Seguridad</title>
+  <title>Login Google Firebase (guardar UID por email)</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding: 3em;
+      padding: 2em;
     }
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 30px;
-      max-width: 500px;
-      margin: auto;
-    }
+
     #loginBtn {
-      font-size: 20px;
-      padding: 15px 30px;
+      font-size: 24px;
+      padding: 20px 40px;
       background-color: #4285f4;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 20px;
     }
+
     #loginBtn:hover {
       background-color: #3367d6;
-    }
-    .codigo {
-      font-size: 30px;
-      color: #222;
-      background-color: #e8f0fe;
-      padding: 12px 20px;
-      border-radius: 8px;
-      display: inline-block;
-      margin: 20px 0;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    #mensajeFinal {
-      font-size: 18px;
-      color: green;
-      margin-top: 30px;
-      display: none;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>🔒 Verificación de seguridad</h2>
-    <p>Presiona el botón para iniciar sesión con tu cuenta Google.</p>
-    <button id="loginBtn">Iniciar sesión con Google</button>
-
-    <div id="resultado" style="margin-top: 30px;"></div>
-    <div id="mensajeFinal">✅ Ya puedes volver a la app</div>
-  </div>
+  <h2>Iniciar sesión con Google</h2>
+  <button id="loginBtn">Iniciar sesión</button>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -68,7 +37,7 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyAv3FWS5J_-wvl2mO-b4qSjNdo5YKiUroY",
+      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
       authDomain: "etiangue.firebaseapp.com",
       databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
       projectId: "etiangue",
@@ -81,62 +50,41 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Clic para iniciar sesión
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+    document.getElementById('loginBtn').addEventListener('click', async function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+
+        // Crear objeto con los datos del usuario
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoUrl: user.photoURL
+        };
+
+        console.log("Datos del usuario a guardar:", userData);
+
+        // Guardar datos completos en "usuarios/uid"
+        console.log("Guardando datos completos en usuarios/" + user.uid);
+        await db.ref("usuarios/" + user.uid).set(userData);
+        console.log("Datos completos guardados correctamente.");
+
+        // Guardar el UID en "emails_a_uid/email_formateado"
+        const emailKey = user.email.replace(/\./g, "_");
+        console.log("Guardando UID en emails_a_uid/" + emailKey + ": " + user.uid);
+        await db.ref("emails_a_uid/" + emailKey).set(user.uid);
+        console.log("UID guardado correctamente en emails_a_uid.");
+
+        alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
+
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        alert("Error al iniciar sesión: " + error.message);
+      }
     });
-
-    // Cuando regresa del login
-    auth.getRedirectResult()
-      .then((result) => {
-        if (result.user) {
-          const user = result.user;
-          const userData = {
-            uid: user.uid + "__UIDTAG",
-            email: user.email,
-            photoUrl: user.photoURL,
-            displayName: user.displayName
-          };
-
-          db.ref("Usuarios_google").once("value").then(snapshot => {
-            const usuarios = snapshot.val() || {};
-            const nuevoID = Object.keys(usuarios).length + 1;
-
-            db.ref("Usuarios_google/" + nuevoID).set(userData)
-              .then(() => {
-                mostrarCodigo(nuevoID);
-              })
-              .catch((error) => {
-                mostrarError("❌ Error al guardar datos: " + error.message);
-              });
-
-          }).catch((error) => {
-            mostrarError("❌ Error al leer usuarios: " + error.message);
-          });
-
-        } else {
-          console.log("⚠️ No se detectó usuario. ¿Ya hiciste login?");
-        }
-      })
-      .catch((error) => {
-        mostrarError("❌ Error en el login: " + error.message);
-      });
-
-    function mostrarCodigo(codigo) {
-      const contenedor = document.getElementById("resultado");
-      contenedor.innerHTML = `
-        <p>🔐 Código de seguridad generado:</p>
-        <div class="codigo">${codigo}</div>
-        <p>Copia este código y pégalo en la app para continuar.</p>
-      `;
-      setTimeout(() => {
-        document.getElementById("mensajeFinal").style.display = "block";
-      }, 4000);
-    }
-
-    function mostrarError(mensaje) {
-      document.getElementById("resultado").innerHTML = `<p style="color: red;">${mensaje}</p>`;
-    }
   </script>
 
 </body>
