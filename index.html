@@ -48,11 +48,12 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-      auth.signInWithPopup(provider)
-        .then((result) => {
+    // Detectar si venimos de redirección
+    auth.getRedirectResult()
+      .then((result) => {
+        if (result.user) {
           const user = result.user;
           const userData = {
             uid: user.uid,
@@ -69,11 +70,15 @@
             .catch((error) => {
               alert("Error al guardar en Firebase: " + error.message);
             });
+        }
+      })
+      .catch((error) => {
+        console.error("Error post-redirect:", error.message);
+      });
 
-        })
-        .catch((error) => {
-          alert("Error al iniciar sesión: " + error.message);
-        });
+    // Al hacer clic en el botón, iniciar login con redirección
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      auth.signInWithRedirect(provider);
     });
   </script>
 
