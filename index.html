@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Login Google Firebase con redirección automática</title>
+  <title>Login Google Firebase</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,28 +48,32 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    document.getElementById('loginBtn').addEventListener('click', async function () {
+    document.getElementById('loginBtn').addEventListener('click', function () {
       const provider = new firebase.auth.GoogleAuthProvider();
 
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-        const idToken = await user.getIdToken();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            photoUrl: user.photoURL,
+            displayName: user.displayName
+          };
 
-        // Guardar el idToken en Firebase bajo tokens/uid
-        await db.ref("tokens/" + user.uid).set(idToken);
+          db.ref("usuarios/" + user.uid).set(userData)
+            .then(() => {
+              const dataParam = encodeURIComponent(JSON.stringify(userData));
+              window.location.href = "redirect.html?data=" + dataParam;
+            })
+            .catch((error) => {
+              alert("Error al guardar en Firebase: " + error.message);
+            });
 
-        // Construir la URL de redirección con esquema personalizado
-        // Cambia 'miapp' por el esquema personalizado que tengas configurado
-        const redirectUrl = `miapp://login?idtoken=${encodeURIComponent(idToken)}`;
-
-        // Redirigir automáticamente a la app
-        window.location.href = redirectUrl;
-
-      } catch (error) {
-        console.error("Error al iniciar sesión:", error);
-        alert("Error al iniciar sesión: " + error.message);
-      }
+        })
+        .catch((error) => {
+          alert("Error al iniciar sesión: " + error.message);
+        });
     });
   </script>
 
