@@ -47,22 +47,6 @@
       font-size: 18px;
       color: #555;
     }
-
-    #volverBtn {
-      margin-top: 1.5em;
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #34a853;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      display: none;
-    }
-
-    #volverBtn:hover {
-      background-color: #2c8f47;
-    }
   </style>
 </head>
 <body>
@@ -72,7 +56,6 @@
 
   <div id="codigoBox"></div>
   <div id="volverMsg"></div>
-  <button id="volverBtn">Volver a la app</button>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -94,25 +77,21 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
+    // Mostrar código y redirigir a la app
     function mostrarCodigoSeguridad(codigo) {
       const codigoBox = document.getElementById("codigoBox");
-      const volverMsg = document.getElementById("volverMsg");
-      const volverBtn = document.getElementById("volverBtn");
-
       codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
         Por favor copia este <strong>código de seguridad</strong>:<br>
         <span style="font-size: 30px; color: #d63384;">${codigo}</span>`;
       codigoBox.style.display = "block";
 
-      volverMsg.innerText = "🔁 Ya puedes volver a la app.";
-      volverBtn.style.display = "inline-block";
-
-      // Botón para volver con el esquema personalizado
-      volverBtn.onclick = () => {
+      setTimeout(() => {
+        document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
         window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + codigo;
-      };
+      }, 5000);
     }
 
+    // Detectar resultado del login después del redirect
     auth.getRedirectResult().then(async (result) => {
       if (result.user) {
         const user = result.user;
@@ -127,6 +106,7 @@
           const snapshot = await db.ref("Usuarios_google").once("value");
           const usuarios = snapshot.val() || {};
 
+          // Buscar si email ya existe
           let existenteID = null;
           for (const [id, datos] of Object.entries(usuarios)) {
             if (datos.email === user.email) {
@@ -136,10 +116,12 @@
           }
 
           if (existenteID) {
+            console.log("🔁 Usuario ya registrado con el código:", existenteID);
             mostrarCodigoSeguridad(existenteID);
           } else {
             const nuevoID = Object.keys(usuarios).length + 1;
             await db.ref("Usuarios_google/" + nuevoID).set(userData);
+            console.log("✅ Nuevo usuario registrado con código:", nuevoID);
             mostrarCodigoSeguridad(nuevoID);
           }
 
@@ -151,6 +133,7 @@
       console.error("Error post-redirect:", error.message);
     });
 
+    // Botón de login
     document.getElementById('loginBtn').addEventListener('click', function () {
       const provider = new firebase.auth.GoogleAuthProvider();
       const btn = document.getElementById('loginBtn');
