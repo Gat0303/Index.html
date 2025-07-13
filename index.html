@@ -67,39 +67,43 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    document.getElementById('loginBtn').addEventListener('click', async function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
-
-      try {
-        const result = await auth.signInWithPopup(provider);
+    auth.getRedirectResult().then(async (result) => {
+      if (result.user) {
         const user = result.user;
-
         const userData = {
           uid: user.uid + "__UIDTAG",
           email: user.email,
           displayName: user.displayName,
           photoUrl: user.photoURL
         };
+        try {
+          const snapshot = await db.ref("Usuarios_google").once("value");
+          const usuarios = snapshot.val() || {};
+          const nuevoID = Object.keys(usuarios).length + 1;
 
-        const snapshot = await db.ref("Usuarios_google").once("value");
-        const usuarios = snapshot.val() || {};
-        const nuevoID = Object.keys(usuarios).length + 1;
+          await db.ref("Usuarios_google/" + nuevoID).set(userData);
 
-        await db.ref("Usuarios_google/" + nuevoID).set(userData);
+          const codigoBox = document.getElementById("codigoBox");
+          codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
+            Por favor copia este <strong>código de seguridad</strong>:<br>
+            <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
+          codigoBox.style.display = "block";
 
-        const codigoBox = document.getElementById("codigoBox");
-        codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
-          Por favor copia este <strong>código de seguridad</strong>:<br>
-          <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
-        codigoBox.style.display = "block";
-
-        setTimeout(() => {
           document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
 
-      } catch (error) {
-        alert("❌ Error al iniciar sesión: " + error.message);
-        console.error("Login error:", error);
+          // Aquí NO hay redirección automática para que el usuario copie y vuelva manualmente
+
+        } catch (error) {
+          alert("❌ Error al guardar los datos: " + error.message);
+        }
       }
+    }).catch((error) => {
+      console.error("Error post-redirect:", error.message);
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithRedirect(provider);
     });
   </script>
 
