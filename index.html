@@ -94,6 +94,7 @@
           email: user.email,
           displayName: user.displayName,
           photoUrl: user.photoURL
+          photoUrl: encodeURIComponent(user.photoURL)
         };
 
         console.log("Usuario que inició sesión:", userData);
