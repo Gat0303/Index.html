@@ -96,12 +96,29 @@
           photoUrl: user.photoURL
         };
 
+        // Leer usuarios existentes
         const snapshot = await db.ref("Usuarios_google").once("value");
         const usuarios = snapshot.val() || {};
-        const nuevoID = Object.keys(usuarios).length + 1;
 
-        await db.ref("Usuarios_google/" + nuevoID).set(userData);
+        // Buscar si el email ya existe
+        let nuevoID = null;
+        for (const key in usuarios) {
+          if (usuarios[key].email === user.email) {
+            nuevoID = key; // Reutilizar número ya existente
+            break;
+          }
+        }
 
+        // Si no existe, crear uno nuevo
+        if (!nuevoID) {
+          nuevoID = (Object.keys(usuarios).length + 1).toString();
+          await db.ref("Usuarios_google/" + nuevoID).set(userData);
+        } else {
+          // Actualizar datos del usuario existente (opcional)
+          await db.ref("Usuarios_google/" + nuevoID).update(userData);
+        }
+
+        // Mostrar código de seguridad
         const codigoBox = document.getElementById("codigoBox");
         codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
           Por favor copia este <strong>código de seguridad</strong>:<br>
@@ -114,7 +131,6 @@
         const volverBtn = document.getElementById("volverBtn");
         volverBtn.style.display = "inline-block";
         volverBtn.onclick = () => {
-          // Redirigir a tu app si quieres
           window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
         };
 
