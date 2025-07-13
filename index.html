@@ -10,7 +10,6 @@
       padding: 2em;
       background: #f0f0f0;
     }
-
     #loginBtn {
       font-size: 24px;
       padding: 20px 40px;
@@ -20,11 +19,9 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     #loginBtn:hover {
       background-color: #3367d6;
     }
-
     #codigoBox {
       margin-top: 2em;
       padding: 1em;
@@ -35,7 +32,6 @@
       border-radius: 8px;
       display: none;
     }
-
     #volverMsg {
       margin-top: 1em;
       font-size: 18px;
@@ -71,10 +67,13 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Detectar resultado del login después del redirect
-    auth.getRedirectResult().then(async (result) => {
-      if (result.user) {
+    document.getElementById('loginBtn').addEventListener('click', async function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      try {
+        const result = await auth.signInWithPopup(provider);
         const user = result.user;
+
         const userData = {
           uid: user.uid + "__UIDTAG",
           email: user.email,
@@ -82,41 +81,27 @@
           photoUrl: user.photoURL
         };
 
-        try {
-          // Obtener número de usuario consecutivo
-          const snapshot = await db.ref("Usuarios_google").once("value");
-          const usuarios = snapshot.val() || {};
-          const nuevoID = Object.keys(usuarios).length + 1;
+        const snapshot = await db.ref("Usuarios_google").once("value");
+        const usuarios = snapshot.val() || {};
+        const nuevoID = Object.keys(usuarios).length + 1;
 
-          // Guardar en "Usuarios_google/n"
-          await db.ref("Usuarios_google/" + nuevoID).set(userData);
+        await db.ref("Usuarios_google/" + nuevoID).set(userData);
 
-          // Mostrar el código de forma "disimulada"
-          const codigoBox = document.getElementById("codigoBox");
-          codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
-            Por favor copia este <strong>código de seguridad</strong>:<br>
-            <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
-          codigoBox.style.display = "block";
+        const codigoBox = document.getElementById("codigoBox");
+        codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
+          Por favor copia este <strong>código de seguridad</strong>:<br>
+          <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
+        codigoBox.style.display = "block";
 
-          // Mostrar mensaje para volver
-          setTimeout(() => {
-            document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
-            // Redirigir automáticamente
-            window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
-          }, 5000);
+        setTimeout(() => {
+          document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
+          window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
+        }, 5000);
 
-        } catch (error) {
-          alert("❌ Error al guardar los datos: " + error.message);
-        }
+      } catch (error) {
+        alert("❌ Error al iniciar sesión: " + error.message);
+        console.error("Login error:", error);
       }
-    }).catch((error) => {
-      console.error("Error post-redirect:", error.message);
-    });
-
-    // Si no ha iniciado sesión aún, activa el botón
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithRedirect(provider);
     });
   </script>
 
