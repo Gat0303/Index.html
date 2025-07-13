@@ -89,11 +89,12 @@
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
+        // Codificamos photoURL
         const userData = {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
-          photoUrl: user.photoURL
+          photoUrl: encodeURIComponent(user.photoURL || "")
         };
 
         console.log("Usuario que inició sesión:", userData);
@@ -104,6 +105,8 @@
 
         let nuevoID = null;
         const emailLower = user.email.toLowerCase();
+
+        // Verificamos si el correo ya existe
         for (const key in usuarios) {
           const emailExistente = usuarios[key].email?.toLowerCase();
           if (emailExistente === emailLower) {
@@ -119,6 +122,7 @@
           await db.ref("Usuarios_google/" + nuevoID).update(userData);
         }
 
+        // Mostrar resultado en pantalla
         const codigoBox = document.getElementById("codigoBox");
         codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
           Por favor copia este <strong>código de seguridad</strong>:<br>
