@@ -115,4 +115,15 @@
         volverBtn.style.display = "inline-block";
         volverBtn.onclick = () => {
           // Redirigir a tu app si quieres
-          window.location.hre
+          window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
+        };
+
+      } catch (error) {
+        alert("❌ Error al iniciar sesión: " + error.message);
+        console.error("Login error:", error);
+      }
+    });
+  </script>
+
+</body>
+</html>
