@@ -10,7 +10,6 @@
       padding: 2em;
       background: #f0f0f0;
     }
-
     #loginBtn {
       font-size: 24px;
       padding: 20px 40px;
@@ -19,18 +18,10 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-
-    #loginBtn:hover:not(:disabled) {
+    #loginBtn:hover {
       background-color: #3367d6;
     }
-
-    #loginBtn:disabled {
-      background-color: #a0a0a0;
-      cursor: default;
-    }
-
     #codigoBox {
       margin-top: 2em;
       padding: 1em;
@@ -41,7 +32,6 @@
       border-radius: 8px;
       display: none;
     }
-
     #volverMsg {
       margin-top: 1em;
       font-size: 18px;
@@ -77,24 +67,13 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Mostrar código y redirigir a la app
-    function mostrarCodigoSeguridad(codigo) {
-      const codigoBox = document.getElementById("codigoBox");
-      codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
-        Por favor copia este <strong>código de seguridad</strong>:<br>
-        <span style="font-size: 30px; color: #d63384;">${codigo}</span>`;
-      codigoBox.style.display = "block";
+    document.getElementById('loginBtn').addEventListener('click', async function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
 
-      setTimeout(() => {
-        document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
-        window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + codigo;
-      }, 5000);
-    }
-
-    // Detectar resultado del login después del redirect
-    auth.getRedirectResult().then(async (result) => {
-      if (result.user) {
+      try {
+        const result = await auth.signInWithPopup(provider);
         const user = result.user;
+
         const userData = {
           uid: user.uid + "__UIDTAG",
           email: user.email,
@@ -102,44 +81,27 @@
           photoUrl: user.photoURL
         };
 
-        try {
-          const snapshot = await db.ref("Usuarios_google").once("value");
-          const usuarios = snapshot.val() || {};
+        const snapshot = await db.ref("Usuarios_google").once("value");
+        const usuarios = snapshot.val() || {};
+        const nuevoID = Object.keys(usuarios).length + 1;
 
-          // Buscar si email ya existe
-          let existenteID = null;
-          for (const [id, datos] of Object.entries(usuarios)) {
-            if (datos.email === user.email) {
-              existenteID = id;
-              break;
-            }
-          }
+        await db.ref("Usuarios_google/" + nuevoID).set(userData);
 
-          if (existenteID) {
-            console.log("🔁 Usuario ya registrado con el código:", existenteID);
-            mostrarCodigoSeguridad(existenteID);
-          } else {
-            const nuevoID = Object.keys(usuarios).length + 1;
-            await db.ref("Usuarios_google/" + nuevoID).set(userData);
-            console.log("✅ Nuevo usuario registrado con código:", nuevoID);
-            mostrarCodigoSeguridad(nuevoID);
-          }
+        const codigoBox = document.getElementById("codigoBox");
+        codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
+          Por favor copia este <strong>código de seguridad</strong>:<br>
+          <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
+        codigoBox.style.display = "block";
 
-        } catch (error) {
-          alert("❌ Error al guardar los datos: " + error.message);
-        }
+        setTimeout(() => {
+          document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
+          window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
+        }, 5000);
+
+      } catch (error) {
+        alert("❌ Error al iniciar sesión: " + error.message);
+        console.error("Login error:", error);
       }
-    }).catch((error) => {
-      console.error("Error post-redirect:", error.message);
-    });
-
-    // Botón de login
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = true;
-      btn.innerText = "Redirigiendo...";
-      auth.signInWithRedirect(provider);
     });
   </script>
 
