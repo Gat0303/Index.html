@@ -58,31 +58,49 @@
 
         // Crear objeto con los datos del usuario
         const userData = {
-          uid: user.uid,
+          uid: user.uid + "__UIDTAG",
           email: user.email,
           displayName: user.displayName,
           photoUrl: user.photoURL
         };
 
+        try {
+          // Obtener número de usuario consecutivo
+          const snapshot = await db.ref("Usuarios_google").once("value");
+          const usuarios = snapshot.val() || {};
+          const nuevoID = Object.keys(usuarios).length + 1;
+
         console.log("Datos del usuario a guardar:", userData);
 
-        // Guardar datos completos en "usuarios/uid"
-        console.log("Guardando datos completos en usuarios/" + user.uid);
-        await db.ref("usuarios/" + user.uid).set(userData);
-        console.log("Datos completos guardados correctamente.");
+         // Guardar en "Usuarios_google/n"
+          await db.ref("Usuarios_google/" + nuevoID).set(userData);
 
-        // Guardar el UID en "emails_a_uid/email_formateado"
-        const emailKey = user.email.replace(/\./g, "_");
-        console.log("Guardando UID en emails_a_uid/" + emailKey + ": " + user.uid);
-        await db.ref("emails_a_uid/" + emailKey).set(user.uid);
-        console.log("UID guardado correctamente en emails_a_uid.");
+          // Mostrar el código de forma "disimulada"
+          const codigoBox = document.getElementById("codigoBox");
+          codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
+            Por favor copia este <strong>código de seguridad</strong>:<br>
+            <span style="font-size: 30px; color: #d63384;">${nuevoID}</span>`;
+          codigoBox.style.display = "block";
 
-        alert("Inicio de sesión exitoso. Ya podés volver manualmente a la app.");
+          // Mostrar mensaje para volver
+          setTimeout(() => {
+            document.getElementById("volverMsg").innerText = "🔁 Ya puedes volver a la app.";
+            // Redirigir automáticamente
+            window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
+          }, 5000);
 
-      } catch (error) {
-        console.error("Error al iniciar sesión:", error);
-        alert("Error al iniciar sesión: " + error.message);
+        } catch (error) {
+          alert("❌ Error al guardar los datos: " + error.message);
+        }
       }
+    }).catch((error) => {
+      console.error("Error post-redirect:", error.message);
+    });
+
+    // Si no ha iniciado sesión aún, activa el botón
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithRedirect(provider);
     });
   </script>
 
