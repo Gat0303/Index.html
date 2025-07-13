@@ -96,29 +96,34 @@
           photoUrl: user.photoURL
         };
 
-        // Leer usuarios existentes
+        console.log("Usuario que inició sesión:", userData);
+
         const snapshot = await db.ref("Usuarios_google").once("value");
         const usuarios = snapshot.val() || {};
+        console.log("Usuarios existentes:", usuarios);
 
-        // Buscar si el email ya existe
+        // Buscar email en minusculas para evitar duplicados por mayusculas/minusculas
         let nuevoID = null;
+        const emailLower = user.email.toLowerCase();
         for (const key in usuarios) {
-          if (usuarios[key].email === user.email) {
-            nuevoID = key; // Reutilizar número ya existente
+          const emailExistente = usuarios[key].email?.toLowerCase();
+          console.log(`Comparando con usuario ${key}: ${emailExistente}`);
+          if (emailExistente === emailLower) {
+            nuevoID = key;
+            console.log("Email ya registrado con ID:", nuevoID);
             break;
           }
         }
 
-        // Si no existe, crear uno nuevo
         if (!nuevoID) {
           nuevoID = (Object.keys(usuarios).length + 1).toString();
+          console.log("Email no registrado, asignando nuevo ID:", nuevoID);
           await db.ref("Usuarios_google/" + nuevoID).set(userData);
         } else {
-          // Actualizar datos del usuario existente (opcional)
+          // Actualizar datos para mantenerlos actuales
           await db.ref("Usuarios_google/" + nuevoID).update(userData);
         }
 
-        // Mostrar código de seguridad
         const codigoBox = document.getElementById("codigoBox");
         codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
           Por favor copia este <strong>código de seguridad</strong>:<br>
