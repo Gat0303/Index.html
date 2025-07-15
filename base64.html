@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Convertir imagen</title>
+  <title>Subir Imagen</title>
 </head>
 <body>
-  <h3>Selecciona una imagen</h3>
+  <h2>Selecciona una imagen</h2>
   <input type="file" accept="image/*" id="fileInput" />
   <script>
-    const input = document.getElementById("fileInput");
-    input.addEventListener("change", function () {
-      const file = input.files[0];
+    document.getElementById("fileInput").addEventListener("change", function () {
+      const file = this.files[0];
       const reader = new FileReader();
 
       reader.onload = function (e) {
-        const base64 = e.target.result.split(',')[1]; // sin el encabezado data:image/...
-        // redirigir a la app con el base64 en el URI
-        const base64short = encodeURIComponent(base64.substring(0, 500)); // acortar
-        location.href = "miapp://imagenbase64?b64=" + base64short;
+        const base64 = e.target.result.split(',')[1];
+        const base64Short = encodeURIComponent(base64.substring(0, 500));
+
+        // Redirección usando intent:// con tu package name
+        const intentUrl = "intent://imagenbase64?b64=" + base64Short +
+          "#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.Trabajo_2;end";
+
+        window.location.href = intentUrl;
       };
 
-      if (file) {
-        reader.readAsDataURL(file);
-      }
+      if (file) reader.readAsDataURL(file);
     });
   </script>
 </body>
