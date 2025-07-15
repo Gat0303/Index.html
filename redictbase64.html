@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Regresar</title>
+</head>
+<body>
+  <h2>✅ Imagen procesada</h2>
+  <p>Ahora podés regresar a la app.</p>
+  <script>
+    const base64 = localStorage.getItem("imagenBase64");
+    document.title = "b64=" + encodeURIComponent(base64);
+  </script>
+</body>
+</html>
