@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Convertir imagen</title>
+  <title>Convertir Imagen a Base64</title>
 </head>
 <body>
-  <h3>Selecciona una imagen</h3>
-  <input type="file" accept="image/*" id="fileInput" />
+  <h3>Selecciona o arrastra tu imagen</h3>
+  <input type="file" id="fileinput" accept="image/*" />
+  <br/><br/>
+  <textarea id="base64output" style="width: 100%; height: 150px;"></textarea>
+
   <script>
-    const input = document.getElementById("fileInput");
-    input.addEventListener("change", function () {
-      const file = input.files[0];
+    const fileinput = document.getElementById('fileinput');
+    const base64output = document.getElementById('base64output');
+
+    fileinput.addEventListener('change', (evt) => {
+      const file = evt.target.files[0];
+      if (!file) return;
+
       const reader = new FileReader();
-
-      reader.onload = function (e) {
-        const base64 = e.target.result.split(',')[1]; // sin el encabezado data:image/...
-        // redirigir a la app con el base64 en el URI
-        const base64short = encodeURIComponent(base64.substring(0, 500)); // acortar
-        location.href = "miapp://imagenbase64?b64=" + base64short;
+      reader.onload = () => {
+        base64output.value = reader.result.split(',')[1]; // solo la parte base64 sin el "data:image/..."
       };
+      reader.readAsDataURL(file);
+    });
 
-      if (file) {
-        reader.readAsDataURL(file);
-      }
+    // Para que App Inventor pueda leer el Base64, lo devolvemos en el título de la página (para usar WebViewer.TitleChanged)
+    base64output.addEventListener('input', () => {
+      document.title = base64output.value;
     });
   </script>
 </body>
