@@ -4,19 +4,29 @@
   <title>Subir Imagen</title>
 </head>
 <body>
-  <h2>Seleccioná una imagen</h2>
+  <h2>Selecciona una imagen</h2>
   <input type="file" accept="image/*" id="fileInput" />
   <script>
     document.getElementById("fileInput").addEventListener("change", function () {
       const file = this.files[0];
       const reader = new FileReader();
+
       reader.onload = function (e) {
         const base64 = e.target.result.split(',')[1];
-        localStorage.setItem("imagenBase64", base64.substring(0, 500));
-        alert("✅ Imagen procesada. Ahora volvé a la app.");
+        localStorage.setItem("imagenBase64", base64.substring(0, 500)); // acortado
+        alert("✅ Imagen lista. Volvé a la app.");
       };
+
       if (file) reader.readAsDataURL(file);
     });
+
+    // Esto se ejecuta siempre que la página se carga (cuando la app lo llama por WebViewer)
+    window.onload = function () {
+      const b64 = localStorage.getItem("imagenBase64") || "";
+      if (b64.length > 0) {
+        AppInventor.setWebViewString(b64);
+      }
+    };
   </script>
 </body>
 </html>
