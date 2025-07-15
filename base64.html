@@ -4,24 +4,17 @@
   <title>Subir Imagen</title>
 </head>
 <body>
-  <h2>Selecciona una imagen</h2>
+  <h2>Seleccioná una imagen</h2>
   <input type="file" accept="image/*" id="fileInput" />
   <script>
     document.getElementById("fileInput").addEventListener("change", function () {
       const file = this.files[0];
       const reader = new FileReader();
-
       reader.onload = function (e) {
         const base64 = e.target.result.split(',')[1];
-        const base64Short = encodeURIComponent(base64.substring(0, 500));
-
-        // Redirección usando intent:// con tu package name
-        const intentUrl = "intent://imagenbase64?b64=" + base64Short +
-          "#Intent;scheme=miapp;package=appinventor.ai_gabrielmsanchezl09.Trabajo_2;end";
-
-        window.location.href = intentUrl;
+        localStorage.setItem("imagenBase64", base64.substring(0, 500));
+        alert("✅ Imagen procesada. Ahora volvé a la app.");
       };
-
       if (file) reader.readAsDataURL(file);
     });
   </script>
