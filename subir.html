@@ -108,7 +108,7 @@
             return;
           }
 
-          const clave = correo.replace(/[.]/g, "_");
+          const clave = correo.replace(/[@.]/g, "_");
           const urlFirebase = `https://etiangue-default-rtdb.firebaseio.com/vendedor/${clave}.json`;
 
           // Verificar si ya existe el nodo
