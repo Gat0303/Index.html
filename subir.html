@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Subir imagen a Firebase</title>
+  <title>Subir imagen</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    h2 {
+      color: #2c3e50;
+    }
+
+    input[type="file"] {
+      margin: 15px 0;
+      padding: 10px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #preview {
+      margin-top: 20px;
+      max-width: 90%;
+      height: auto;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      display: none;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <h2>Selecciona una imagen para tu producto</h2>
-  <input type="file" id="fileInput" accept="image/*"><br><br>
-  <button onclick="subirImagen()">Subir a ImgBB</button>
+  <h2>Sube una imagen para tu producto</h2>
+
+  <input type="file" id="fileInput" accept="image/*" onchange="mostrarVistaPrevia()"><br>
+  <img id="preview" alt="Vista previa"><br><br>
+
+  <button onclick="subirImagen()">📤 Subir Imagen</button>
   <p id="resultado"></p>
 
   <script>
@@ -16,10 +66,26 @@
       return params.get("correo");
     }
 
+    function mostrarVistaPrevia() {
+      const file = document.getElementById('fileInput').files[0];
+      const preview = document.getElementById('preview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = "";
+        preview.style.display = "none";
+      }
+    }
+
     function subirImagen() {
       const file = document.getElementById('fileInput').files[0];
       if (!file) {
-        alert("Selecciona una imagen primero.");
+        alert("📸 Selecciona una imagen primero.");
         return;
       }
 
@@ -38,28 +104,34 @@
           const urlImg = data.data.url;
           const correo = obtenerCorreoDesdeURL();
           if (!correo) {
-            alert("No se proporcionó el correo.");
+            alert("❗No se proporcionó el correo.");
             return;
           }
 
           const clave = correo.replace(/[@.]/g, "_");
-          const fotoObj = { "foto": urlImg };
+          const urlFirebase = `https://etiangue-default-rtdb.firebaseio.com/vendedor/${clave}.json`;
 
-          fetch("https://etiangue-default-rtdb.firebaseio.com/vendedor/" + clave + ".json", {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(fotoObj)
-          }).then(() => {
-            document.getElementById("resultado").innerHTML = `
-              <strong>✅ Imagen subida y guardada en Firebase</strong><br>
-              <a href="${urlImg}" target="_blank">${urlImg}</a>
-            `;
-          });
+          // Verificar si ya existe el nodo
+          fetch(urlFirebase)
+            .then(res => res.json())
+            .then(dataExistente => {
+              const datosActualizados = dataExistente || {};
+              datosActualizados.foto = urlImg;
+
+              fetch(urlFirebase, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datosActualizados)
+              })
+              .then(() => {
+                alert("✅ Imagen subida con éxito. Ya puedes volver a la app.");
+              });
+            });
         })
         .catch(error => {
-          document.getElementById("resultado").innerText = "Error: " + error;
+          document.getElementById("resultado").innerText = "❌ Error: " + error;
         });
       };
 
