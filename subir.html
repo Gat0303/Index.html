@@ -66,6 +66,11 @@
       return params.get("correo");
     }
 
+    function obtenerClaveDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("clave"); // Ej: 1, 2, 3...
+    }
+
     function mostrarVistaPrevia() {
       const file = document.getElementById('fileInput').files[0];
       const preview = document.getElementById('preview');
@@ -89,6 +94,16 @@
         return;
       }
 
+      const correo = obtenerCorreoDesdeURL();
+      const claveProducto = obtenerClaveDesdeURL();
+      if (!correo || !claveProducto) {
+        alert("❗Faltan parámetros de correo o clave.");
+        return;
+      }
+
+      const claveCorreo = correo.replace(/[@.]/g, "_");
+      const rutaFirebase = `https://etiangue-default-rtdb.firebaseio.com/foto_url/${claveCorreo}/${claveProducto}.json`;
+
       const reader = new FileReader();
       reader.onloadend = function () {
         const base64 = reader.result.split(',')[1];
@@ -102,28 +117,25 @@
         .then(res => res.json())
         .then(data => {
           const urlImg = data.data.url;
-          const correo = obtenerCorreoDesdeURL();
-          if (!correo) {
-            alert("❗No se proporcionó el correo.");
-            return;
-          }
 
-          const clave = correo.replace(/[@.]/g, "_");
-          const urlFirebase = `https://etiangue-default-rtdb.firebaseio.com/vendedor/${clave}.json`;
-
-          // Verificar si ya existe el nodo
-          fetch(urlFirebase)
+          // Verificar cuántas fotos hay ya
+          fetch(rutaFirebase)
             .then(res => res.json())
-            .then(dataExistente => {
-              const datosActualizados = dataExistente || {};
-              datosActualizados.foto = urlImg;
+            .then(fotos => {
+              const totalFotos = fotos ? Object.keys(fotos).length : 0;
 
-              fetch(urlFirebase, {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(datosActualizados)
+              if (totalFotos >= 5) {
+                alert("⚠️ Estimado usuario, se le informa que la capacidad límite de los productos que usted puede subir ya se ha agotado. Por favor cree o ingrese otro producto o elimine fotos. Muchas gracias.");
+                return;
+              }
+
+              const siguienteNumero = totalFotos + 1;
+              const urlSubida = `https://etiangue-default-rtdb.firebaseio.com/foto_url/${claveCorreo}/${claveProducto}/${siguienteNumero}.json`;
+
+              fetch(urlSubida, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(urlImg)
               })
               .then(() => {
                 alert("✅ Imagen subida con éxito. Ya puedes volver a la app.");
