@@ -1,64 +1,38 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Subir imagen</title>
+  <title>Subir Imagen</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9ff;
+      padding: 20px;
       text-align: center;
-      padding: 50px 20px;
     }
-
-    h2 {
-      color: #2c3e50;
-    }
-
     input[type="file"] {
-      margin: 15px 0;
-      padding: 10px;
+      margin: 20px 0;
     }
-
     button {
-      background-color: #3498db;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #6c63ff;
       color: white;
-      padding: 15px 30px;
-      font-size: 16px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-
     button:hover {
-      background-color: #2980b9;
-    }
-
-    #preview {
-      margin-top: 20px;
-      max-width: 90%;
-      height: auto;
-      border: 2px dashed #ccc;
-      padding: 10px;
-      display: none;
-    }
-
-    #resultado {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #333;
+      background-color: #5548e0;
     }
   </style>
 </head>
 <body>
-  <h2>Sube una imagen para tu producto</h2>
 
-  <input type="file" id="fileInput" accept="image/*" onchange="mostrarVistaPrevia()"><br>
-  <img id="preview" alt="Vista previa"><br><br>
-
-  <button onclick="subirImagen()">📤 Subir Imagen</button>
-  <p id="resultado"></p>
+  <h2>Subir una Imagen</h2>
+  <input type="file" id="fileInput" accept="image/*">
+  <br>
+  <button onclick="subirImagen()">Subir Imagen</button>
 
   <script>
     function obtenerCorreoDesdeURL() {
@@ -68,87 +42,62 @@
 
     function obtenerClaveDesdeURL() {
       const params = new URLSearchParams(window.location.search);
-      return params.get("clave"); // Ej: 1, 2, 3...
+      return params.get("clave");
     }
 
-    function mostrarVistaPrevia() {
-      const file = document.getElementById('fileInput').files[0];
-      const preview = document.getElementById('preview');
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          preview.src = e.target.result;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.src = "";
-        preview.style.display = "none";
-      }
+    function obtenerNumeroDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("numero");
     }
 
     function subirImagen() {
-      const file = document.getElementById('fileInput').files[0];
-      if (!file) {
-        alert("📸 Selecciona una imagen primero.");
-        return;
-      }
-
       const correo = obtenerCorreoDesdeURL();
-      const claveProducto = obtenerClaveDesdeURL();
-      if (!correo || !claveProducto) {
-        alert("❗Faltan parámetros de correo o clave.");
-        return;
-      }
+      const clave = obtenerClaveDesdeURL();
+      const numeroFoto = obtenerNumeroDesdeURL();
 
       const claveCorreo = correo.replace(/[@.]/g, "_");
-      const rutaFirebase = `https://etiangue-default-rtdb.firebaseio.com/foto_url/${claveCorreo}/${claveProducto}.json`;
+      const input = document.getElementById('fileInput');
+      const file = input.files[0];
+
+      if (!file) {
+        alert("Selecciona una imagen");
+        return;
+      }
 
       const reader = new FileReader();
       reader.onloadend = function () {
-        const base64 = reader.result.split(',')[1];
-        const formData = new FormData();
-        formData.append("image", base64);
+        const base64String = reader.result.replace(/^data:image\/(png|jpeg);base64,/, "");
 
-        fetch("https://api.imgbb.com/1/upload?key=61c6607d8942db70af0966b6b674ce78", {
+        const formData = new FormData();
+        formData.append('key', '61c6607d8942db70af0966b6b674ce78'); // ✅ API key insertada
+        formData.append('image', base64String);
+
+        fetch("https://api.imgbb.com/1/upload", {
           method: "POST",
           body: formData
         })
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
-          const urlImg = data.data.url;
+          const imageUrl = data.data.url;
 
-          // Verificar cuántas fotos hay ya
-          fetch(rutaFirebase)
-            .then(res => res.json())
-            .then(fotos => {
-              const totalFotos = fotos ? Object.keys(fotos).length : 0;
+          const urlSubida = `https://etiangue-default-rtdb.firebaseio.com/foto_url/${claveCorreo}/${clave}/${numeroFoto}.json`;
 
-              if (totalFotos >= 5) {
-                alert("⚠️ Estimado usuario, se le informa que la capacidad límite de los productos que usted puede subir ya se ha agotado. Por favor cree o ingrese otro producto o elimine fotos. Muchas gracias.");
-                return;
-              }
-
-              const siguienteNumero = totalFotos + 1;
-              const urlSubida = `https://etiangue-default-rtdb.firebaseio.com/foto_url/${claveCorreo}/${claveProducto}/${siguienteNumero}.json`;
-
-              fetch(urlSubida, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(urlImg)
-              })
-              .then(() => {
-                alert("✅ Imagen subida con éxito. Ya puedes volver a la app.");
-              });
-            });
-        })
-        .catch(error => {
-          document.getElementById("resultado").innerText = "❌ Error: " + error;
+          fetch(urlSubida, {
+            method: "PUT",
+            body: JSON.stringify(imageUrl),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(() => {
+            alert("✅ Imagen subida con éxito. Ya puedes volver a la app.");
+          });
         });
       };
 
       reader.readAsDataURL(file);
     }
   </script>
+
 </body>
 </html>
