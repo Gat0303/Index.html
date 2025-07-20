@@ -84,7 +84,7 @@
 
           fetch(urlSubida, {
             method: "PUT",
-            body: JSON.stringify(imageUrl),
+            body: JSON.stringify({ url: imageUrl }),
             headers: {
               "Content-Type": "application/json"
             }
