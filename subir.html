@@ -7,10 +7,12 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9ff;
+      background: linear-gradient(135deg, #111827, #1f2937);
       padding: 20px;
       text-align: center;
-      color: #333;
+      color: #f8f9fa;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
 
     #logo {
@@ -24,7 +26,7 @@
     h2 {
       font-size: 6vw;
       margin-bottom: 1em;
-      color: #333;
+      color: #e2e8f0;
     }
 
     input[type="file"] {
@@ -58,6 +60,7 @@
       border-radius: 10px;
       object-fit: contain;
       display: none;
+      background-color: #fff;
     }
 
     @media (min-width: 600px) {
@@ -85,7 +88,7 @@
       return params.get(nombre);
     }
 
-    // Mostrar vista previa cuando se selecciona una imagen
+    // Mostrar vista previa
     document.getElementById('fileInput').addEventListener('change', function () {
       const file = this.files[0];
       const preview = document.getElementById('preview');
