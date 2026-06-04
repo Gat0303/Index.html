@@ -2,9 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>ETiangue - Acceso Seguro</title>
+  <title>CleanMap - Acceso Seguro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -22,8 +24,8 @@
     }
 
     #logo {
-      width: 40vw; /* ancho relativo al viewport para que sea responsivo */
-      max-width: 140px; /* máximo ancho para pantallas grandes */
+      width: 220px;
+      max-width: 80vw;
       border-radius: 12px;
       margin-bottom: 1.5em;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
@@ -32,21 +34,19 @@
     h2 {
       margin-bottom: 1.2em;
       font-size: 5vw;
-      max-font-size: 24px;
-      font-weight: 500;
       color: #e2e8f0;
+      font-weight: 500;
     }
 
     #loginBtn {
       font-size: 5vw;
-      max-font-size: 20px;
       padding: 14px 28px;
       background-color: #4285f4;
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: 0.3s;
       box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
       width: 80vw;
       max-width: 320px;
@@ -61,19 +61,26 @@
       margin-top: 2em;
       padding: 1.2em;
       font-size: 4.5vw;
-      max-font-size: 18px;
       background-color: #fdf6b2;
       color: #1a202c;
       border: 1px solid #f6e05e;
       border-radius: 10px;
       max-width: 90%;
       word-wrap: break-word;
+      display: none;
+    }
+
+    #codigoBox span {
+      font-size: 12vw;
+      color: #d63384;
+      display: inline-block;
+      margin-top: 0.3em;
+      font-weight: bold;
     }
 
     #volverMsg {
       margin-top: 1.5em;
       font-size: 4vw;
-      max-font-size: 16px;
       color: #cbd5e0;
     }
 
@@ -81,14 +88,13 @@
       margin-top: 1em;
       padding: 10px 22px;
       font-size: 4.5vw;
-      max-font-size: 17px;
       background-color: #34a853;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       display: none;
-      transition: background-color 0.3s ease;
+      transition: 0.3s;
       width: 80vw;
       max-width: 320px;
       min-height: 44px;
@@ -97,52 +103,59 @@
     #volverBtn:hover {
       background-color: #2c8f47;
     }
-
-    /* Para asegurar que el span del código se vea bien en móviles */
-    #codigoBox span {
-      font-size: 12vw;
-      max-font-size: 30px;
-      color: #d63384;
-      display: inline-block;
-      margin-top: 0.3em;
-    }
   </style>
 </head>
+
 <body>
 
-  <img id="logo" src="https://i.ibb.co/p6KCx70j/logo.jpg" alt="ETiangue logo" />
+  <img
+    id="logo"
+    src="https://raw.githubusercontent.com/Gat0303/Index.html/cf38036da192a04eb68eb4b076dfe2ad7f2c34bc/WhatsApp%20Image%202026-06-03%20at%209.47.53%20PM.jpeg"
+    alt="CleanMap Logo"
+  >
 
-  <h2>Iniciar sesión con Google</h2>
-  <button id="loginBtn">Iniciar sesión</button>
+  <h2>Iniciar sesión en CleanMap</h2>
+
+  <button id="loginBtn">
+    Iniciar sesión con Google
+  </button>
 
   <div id="codigoBox"></div>
-  <div id="volverMsg"></div>
-  <button id="volverBtn">Volver a la app</button>
 
-  <!-- Firebase SDKs -->
+  <div id="volverMsg"></div>
+
+  <button id="volverBtn">
+    Volver a la aplicación
+  </button>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
+
     const firebaseConfig = {
-      apiKey: "AIzaSyDkvvxGAYCoOkTq62udbl9WRafUGQT17L4",
-      authDomain: "etiangue.firebaseapp.com",
-      databaseURL: "https://etiangue-default-rtdb.firebaseio.com/",
-      projectId: "etiangue",
-      storageBucket: "etiangue.appspot.com",
-      messagingSenderId: "752321436396",
-      appId: "1:752321436396:web:19c24ee67cee9b018423c9"
+      apiKey: "AIzaSyCCKnrNTyLmq50yfr_NGY4Yl1_SesboLHQ",
+      authDomain: "my-v-care.firebaseapp.com",
+      databaseURL: "https://my-v-care-default-rtdb.firebaseio.com",
+      projectId: "my-v-care",
+      storageBucket: "my-v-care.firebasestorage.app",
+      messagingSenderId: "1048158040979",
+      appId: "1:1048158040979:web:1ecadceb7fd7a2f33a6e66"
     };
 
     firebase.initializeApp(firebaseConfig);
+
     const auth = firebase.auth();
     const db = firebase.database();
 
-    document.getElementById('loginBtn').addEventListener('click', async function () {
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+
       const provider = new firebase.auth.GoogleAuthProvider();
 
       try {
+
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
@@ -153,13 +166,19 @@
           photoUrl: encodeURIComponent(user.photoURL || "")
         };
 
-        const snapshot = await db.ref("Usuarios_google").once("value");
+        const snapshot = await db.ref("Usuarios_CleanMap").once("value");
+
         const usuarios = snapshot.val() || {};
+
         let nuevoID = null;
+
         const emailLower = user.email.toLowerCase();
 
         for (const key in usuarios) {
-          const emailExistente = usuarios[key].email?.toLowerCase();
+
+          const emailExistente =
+            usuarios[key].email?.toLowerCase();
+
           if (emailExistente === emailLower) {
             nuevoID = key;
             break;
@@ -167,32 +186,55 @@
         }
 
         if (!nuevoID) {
-          nuevoID = (Object.keys(usuarios).length + 1).toString();
-          await db.ref("Usuarios_google/" + nuevoID).set(userData);
+
+          nuevoID =
+            (Object.keys(usuarios).length + 1).toString();
+
+          await db
+            .ref("Usuarios_CleanMap/" + nuevoID)
+            .set(userData);
+
         } else {
-          await db.ref("Usuarios_google/" + nuevoID).update(userData);
+
+          await db
+            .ref("Usuarios_CleanMap/" + nuevoID)
+            .update(userData);
         }
 
-        const codigoBox = document.getElementById("codigoBox");
-        codigoBox.innerHTML = `<strong>✅ Usuario ingresado con éxito</strong><br><br>
-          Por favor copia este <strong>código de seguridad</strong>:<br>
+        document.getElementById("codigoBox").innerHTML =
+          `<strong>✅ Usuario registrado correctamente</strong><br><br>
+          Copia este código de acceso:<br>
           <span>${nuevoID}</span>`;
-        codigoBox.style.display = "block";
 
-        const volverMsg = document.getElementById("volverMsg");
-        volverMsg.innerText = "🔁 Ya puedes volver a la app manualmente.";
+        document.getElementById("codigoBox").style.display =
+          "block";
 
-        const volverBtn = document.getElementById("volverBtn");
+        document.getElementById("volverMsg").innerText =
+          "Ya puedes regresar a CleanMap.";
+
+        const volverBtn =
+          document.getElementById("volverBtn");
+
         volverBtn.style.display = "inline-block";
+
         volverBtn.onclick = () => {
-          window.location.href = "appinventor.ai_gabrielmsanchezl09.Trabajo_2://callback?data=" + nuevoID;
+
+          window.location.href =
+            "appinventor.ai_gabrielmsanchezl09.CleanMap://callback?data=" +
+            nuevoID;
         };
 
       } catch (error) {
-        alert("❌ Error al iniciar sesión: " + error.message);
-        console.error("Login error:", error);
+
+        console.error(error);
+
+        alert(
+          "Error al iniciar sesión: " +
+          error.message
+        );
       }
     });
+
   </script>
 
 </body>
