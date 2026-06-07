@@ -1,241 +1,548 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>CleanMap - Acceso Seguro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanMap - Acceso Seguro</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0 1em;
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      background: linear-gradient(135deg, #111827, #1f2937);
-      color: #f8f9fa;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    position:relative;
+
+    background:
+    radial-gradient(circle at top left,#ffffff 0%,#f8fafc 35%),
+    linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #eef8ff 50%,
+        #f5fdff 100%
+    );
+}
+
+/* ---------- HOJAS DE APERTURA ---------- */
+
+#leftPlant,
+#rightPlant{
+    position:fixed;
+    top:0;
+    width:50vw;
+    height:100vh;
+    z-index:9999;
+    pointer-events:none;
+}
+
+#leftPlant{
+    left:0;
+    background:
+    radial-gradient(circle at right center,
+    #4ade80,
+    #22c55e,
+    #16a34a);
+    border-radius:0 100% 100% 0;
+
+    animation:openLeft 2.2s ease forwards;
+}
+
+#rightPlant{
+    right:0;
+    background:
+    radial-gradient(circle at left center,
+    #4ade80,
+    #22c55e,
+    #16a34a);
+
+    border-radius:100% 0 0 100%;
+
+    animation:openRight 2.2s ease forwards;
+}
+
+@keyframes openLeft{
+    to{
+        transform:translateX(-120%);
+    }
+}
+
+@keyframes openRight{
+    to{
+        transform:translateX(120%);
+    }
+}
+
+/* ---------- HOJAS CAYENDO ---------- */
+
+.leaves{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+}
+
+.leaf{
+    position:absolute;
+    top:-60px;
+    opacity:.55;
+    user-select:none;
+    animation-name:fall;
+    animation-timing-function:linear;
+}
+
+@keyframes fall{
+
+    0%{
+        transform:
+        translateY(-60px)
+        translateX(0px)
+        rotate(0deg);
     }
 
-    #logo {
-      width: 220px;
-      max-width: 80vw;
-      border-radius: 12px;
-      margin-bottom: 1.5em;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+    25%{
+        transform:
+        translateY(25vh)
+        translateX(-25px)
+        rotate(90deg);
     }
 
-    h2 {
-      margin-bottom: 1.2em;
-      font-size: 5vw;
-      color: #e2e8f0;
-      font-weight: 500;
+    50%{
+        transform:
+        translateY(50vh)
+        translateX(25px)
+        rotate(180deg);
     }
 
-    #loginBtn {
-      font-size: 5vw;
-      padding: 14px 28px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
-      width: 80vw;
-      max-width: 320px;
-      min-height: 48px;
+    75%{
+        transform:
+        translateY(75vh)
+        translateX(-20px)
+        rotate(270deg);
     }
 
-    #loginBtn:hover {
-      background-color: #3367d6;
+    100%{
+        transform:
+        translateY(120vh)
+        translateX(15px)
+        rotate(360deg);
+    }
+}
+
+/* ---------- TARJETA ---------- */
+
+.container{
+
+    position:relative;
+    z-index:2;
+
+    width:100%;
+    max-width:460px;
+
+    background:rgba(255,255,255,.78);
+
+    backdrop-filter:blur(22px);
+
+    border:1px solid rgba(255,255,255,.85);
+
+    border-radius:32px;
+
+    padding:35px 25px;
+
+    text-align:center;
+
+    box-shadow:
+    0 25px 60px rgba(0,0,0,.12);
+
+    animation:showCard 1s ease;
+}
+
+@keyframes showCard{
+
+    from{
+        opacity:0;
+        transform:translateY(30px);
     }
 
-    #codigoBox {
-      margin-top: 2em;
-      padding: 1.2em;
-      font-size: 4.5vw;
-      background-color: #fdf6b2;
-      color: #1a202c;
-      border: 1px solid #f6e05e;
-      border-radius: 10px;
-      max-width: 90%;
-      word-wrap: break-word;
-      display: none;
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
+}
 
-    #codigoBox span {
-      font-size: 12vw;
-      color: #d63384;
-      display: inline-block;
-      margin-top: 0.3em;
-      font-weight: bold;
-    }
+#logo{
 
-    #volverMsg {
-      margin-top: 1.5em;
-      font-size: 4vw;
-      color: #cbd5e0;
-    }
+    width:230px;
+    max-width:80vw;
 
-    #volverBtn {
-      margin-top: 1em;
-      padding: 10px 22px;
-      font-size: 4.5vw;
-      background-color: #34a853;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      display: none;
-      transition: 0.3s;
-      width: 80vw;
-      max-width: 320px;
-      min-height: 44px;
-    }
+    border-radius:20px;
 
-    #volverBtn:hover {
-      background-color: #2c8f47;
-    }
-  </style>
+    margin-bottom:18px;
+
+    box-shadow:
+    0 10px 35px rgba(0,0,0,.12);
+
+    transition:.3s;
+}
+
+#logo:hover{
+    transform:scale(1.03);
+}
+
+h2{
+
+    color:#0f172a;
+
+    font-size:1.8rem;
+
+    margin-bottom:10px;
+}
+
+.subtitle{
+
+    color:#475569;
+
+    margin-bottom:25px;
+
+    line-height:1.5;
+}
+
+#loginBtn{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    color:white;
+
+    background:
+    linear-gradient(
+        135deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    transition:.3s;
+
+    box-shadow:
+    0 10px 25px rgba(37,99,235,.25);
+}
+
+#loginBtn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 15px 30px rgba(37,99,235,.35);
+}
+
+#codigoBox{
+
+    margin-top:25px;
+
+    padding:20px;
+
+    background:white;
+
+    border-radius:18px;
+
+    display:none;
+
+    color:#1e293b;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+}
+
+#codigoBox span{
+
+    display:block;
+
+    margin-top:10px;
+
+    font-size:3rem;
+
+    font-weight:700;
+
+    color:#16a34a;
+}
+
+#volverMsg{
+
+    margin-top:15px;
+
+    color:#334155;
+}
+
+#volverBtn{
+
+    display:none;
+
+    width:100%;
+
+    margin-top:15px;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    color:white;
+
+    background:
+    linear-gradient(
+        135deg,
+        #16a34a,
+        #22c55e
+    );
+
+    transition:.3s;
+}
+
+#volverBtn:hover{
+    transform:translateY(-3px);
+}
+
+.footer{
+
+    margin-top:20px;
+
+    color:#64748b;
+
+    font-size:.8rem;
+}
+
+</style>
 </head>
 
 <body>
 
-  <img
-    id="logo"
-    src="https://raw.githubusercontent.com/Gat0303/Index.html/cf38036da192a04eb68eb4b076dfe2ad7f2c34bc/WhatsApp%20Image%202026-06-03%20at%209.47.53%20PM.jpeg"
-    alt="CleanMap Logo"
-  >
+<div id="leftPlant"></div>
+<div id="rightPlant"></div>
 
-  <h2>Iniciar sesión en CleanMap</h2>
+<div class="leaves"></div>
 
-  <button id="loginBtn">
-    Iniciar sesión con Google
-  </button>
+<div class="container">
 
-  <div id="codigoBox"></div>
+<img
+id="logo"
+src="https://raw.githubusercontent.com/Gat0303/Index.html/cf38036da192a04eb68eb4b076dfe2ad7f2c34bc/WhatsApp%20Image%202026-06-03%20at%209.47.53%20PM.jpeg"
+alt="CleanMap">
 
-  <div id="volverMsg"></div>
+<h2>Bienvenido a CleanMap</h2>
 
-  <button id="volverBtn">
-    Volver a la aplicación
-  </button>
+<p class="subtitle">
+Accede de forma segura utilizando tu cuenta de Google.
+</p>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<button id="loginBtn">
+Iniciar sesión con Google
+</button>
 
-  <script>
+<div id="codigoBox"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCKnrNTyLmq50yfr_NGY4Yl1_SesboLHQ",
-      authDomain: "my-v-care.firebaseapp.com",
-      databaseURL: "https://my-v-care-default-rtdb.firebaseio.com",
-      projectId: "my-v-care",
-      storageBucket: "my-v-care.firebasestorage.app",
-      messagingSenderId: "1048158040979",
-      appId: "1:1048158040979:web:1ecadceb7fd7a2f33a6e66"
-    };
+<div id="volverMsg"></div>
 
-    firebase.initializeApp(firebaseConfig);
+<button id="volverBtn">
+Volver a la aplicación
+</button>
 
-    const auth = firebase.auth();
-    const db = firebase.database();
+<div class="footer">
+© 2026 CleanMap
+</div>
 
-    document.getElementById("loginBtn").addEventListener("click", async () => {
+</div>
 
-      const provider = new firebase.auth.GoogleAuthProvider();
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-      try {
+<script>
 
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
+/* ---------- HOJAS CAYENDO ---------- */
 
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoUrl: encodeURIComponent(user.photoURL || "")
-        };
+const leavesContainer =
+document.querySelector(".leaves");
 
-        const snapshot = await db.ref("Usuarios_CleanMap").once("value");
+function createLeaf(){
 
-        const usuarios = snapshot.val() || {};
+    const leaf =
+    document.createElement("div");
 
-        let nuevoID = null;
+    leaf.className = "leaf";
 
-        const emailLower = user.email.toLowerCase();
+    const symbols = [
+        "🍃",
+        "🌿",
+        "🍀"
+    ];
 
-        for (const key in usuarios) {
+    leaf.innerHTML =
+    symbols[Math.floor(Math.random()*symbols.length)];
 
-          const emailExistente =
-            usuarios[key].email?.toLowerCase();
+    leaf.style.left =
+    Math.random()*100 + "vw";
 
-          if (emailExistente === emailLower) {
-            nuevoID = key;
-            break;
-          }
-        }
+    leaf.style.fontSize =
+    (18 + Math.random()*18) + "px";
 
-        if (!nuevoID) {
+    leaf.style.animationDuration =
+    (8 + Math.random()*10) + "s";
 
-          nuevoID =
-            (Object.keys(usuarios).length + 1).toString();
+    leavesContainer.appendChild(leaf);
 
-          await db
-            .ref("Usuarios_CleanMap/" + nuevoID)
-            .set(userData);
+    setTimeout(()=>{
+        leaf.remove();
+    },18000);
+}
 
-        } else {
+setInterval(createLeaf,600);
 
-          await db
-            .ref("Usuarios_CleanMap/" + nuevoID)
-            .update(userData);
-        }
+/* ---------- FIREBASE ---------- */
 
-        document.getElementById("codigoBox").innerHTML =
-          `<strong>✅ Usuario registrado correctamente</strong><br><br>
-          Copia este código de acceso:<br>
-          <span>${nuevoID}</span>`;
+const firebaseConfig = {
+apiKey: "AIzaSyCCKnrNTyLmq50yfr_NGY4Yl1_SesboLHQ",
+authDomain: "my-v-care.firebaseapp.com",
+databaseURL: "https://my-v-care-default-rtdb.firebaseio.com",
+projectId: "my-v-care",
+storageBucket: "my-v-care.firebasestorage.app",
+messagingSenderId: "1048158040979",
+appId: "1:1048158040979:web:1ecadceb7fd7a2f33a6e66"
+};
 
-        document.getElementById("codigoBox").style.display =
-          "block";
+firebase.initializeApp(firebaseConfig);
 
-        document.getElementById("volverMsg").innerText =
-          "Ya puedes regresar a CleanMap.";
+const auth = firebase.auth();
+const db = firebase.database();
 
-        const volverBtn =
-          document.getElementById("volverBtn");
+document.getElementById("loginBtn").addEventListener("click", async () => {
 
-        volverBtn.style.display = "inline-block";
+const provider = new firebase.auth.GoogleAuthProvider();
 
-        volverBtn.onclick = () => {
+try{
 
-          window.location.href =
-            "appinventor.ai_gabrielmsanchezl09.CleanMap://callback?data=" +
-            nuevoID;
-        };
+const result =
+await auth.signInWithPopup(provider);
 
-      } catch (error) {
+const user = result.user;
 
-        console.error(error);
+const userData = {
+uid:user.uid,
+email:user.email,
+displayName:user.displayName,
+photoUrl:encodeURIComponent(user.photoURL || "")
+};
 
-        alert(
-          "Error al iniciar sesión: " +
-          error.message
-        );
-      }
-    });
+const snapshot =
+await db.ref("Usuarios_CleanMap").once("value");
 
-  </script>
+const usuarios =
+snapshot.val() || {};
+
+let nuevoID = null;
+
+const emailLower =
+user.email.toLowerCase();
+
+for(const key in usuarios){
+
+const emailExistente =
+usuarios[key].email?.toLowerCase();
+
+if(emailExistente === emailLower){
+
+nuevoID = key;
+break;
+
+}
+}
+
+if(!nuevoID){
+
+nuevoID =
+(Object.keys(usuarios).length + 1).toString();
+
+await db
+.ref("Usuarios_CleanMap/" + nuevoID)
+.set(userData);
+
+}else{
+
+await db
+.ref("Usuarios_CleanMap/" + nuevoID)
+.update(userData);
+
+}
+
+document.getElementById("codigoBox").innerHTML =
+`
+<strong>✅ Usuario registrado correctamente</strong>
+<br><br>
+Tu código de acceso es:
+<span>${nuevoID}</span>
+`;
+
+document.getElementById("codigoBox").style.display =
+"block";
+
+document.getElementById("volverMsg").innerText =
+"Ya puedes regresar a CleanMap.";
+
+const volverBtn =
+document.getElementById("volverBtn");
+
+volverBtn.style.display =
+"inline-block";
+
+volverBtn.onclick = () => {
+
+window.location.href =
+"appinventor.ai_gabrielmsanchezl09.CleanMap://callback?data=" +
+nuevoID;
+
+};
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Error al iniciar sesión: " +
+error.message
+);
+
+}
+
+});
+
+</script>
 
 </body>
 </html>
